@@ -2,6 +2,12 @@ public class Cave {
 
     private int caveSize;
     private Node[][] cave;
+    private int playerPrevX = 0;
+    private int playerPrevY = 0;
+    private int goldPrevX;
+    private int goldPrevY;
+    private int wumpX;
+    private int wumpY;
 
     public Cave(int inSize){
         caveSize = inSize;
@@ -18,6 +24,22 @@ public class Cave {
                 }
             }
         }
+
+        int gold = (int)(Math.random() * (caveSize * caveSize) - 1) + 1;
+        goldPrevY = (gold / caveSize);
+        goldPrevX = gold % caveSize;
+        cave[goldPrevX][goldPrevY].setGold();
+        cave[goldPrevX][goldPrevY].setGlitter();
+        if(cave[goldPrevX][goldPrevY].isPit()){
+            cave[goldPrevX][goldPrevY].removePit();
+        }
+
+        int wumpus = (int)(Math.random() * (caveSize * caveSize) - 1) + 1;
+        wumpY = (wumpus / caveSize);
+        wumpX = wumpus % caveSize;
+        cave[wumpX][wumpY].setWumpus();
+        setStenchs(wumpX,wumpY);
+
         for(int y = 0; y < caveSize; y++){
             for(int x = 0; x < caveSize; x++){
                 if(cave[x][y].isPit()){
@@ -28,20 +50,6 @@ public class Cave {
 
         cave[0][0].setStart();
 
-        int gold = (int)(Math.random() * (caveSize * caveSize) - 1) + 1;
-        int goldY = (gold / caveSize);
-        int goldX = gold % caveSize;
-        cave[goldX][goldY].setGold();
-        cave[goldX][goldY].setGlitter();
-        System.out.println(gold + " gold x = " + goldX + " gold y = " + goldY);
-
-        int wumpus = (int)(Math.random() * (caveSize * caveSize) - 1) + 1;
-
-        int wumpY = (wumpus / caveSize);
-        int wumpX = wumpus % caveSize;
-        cave[wumpX][wumpY].setWumpus();
-        setStenchs(wumpX,wumpY);
-        System.out.println(wumpus + " wumpus x = " + wumpX + " wumpus y = " + wumpY);
     }
 
     private void setBreezes(int inX, int inY){
@@ -74,8 +82,39 @@ public class Cave {
         }
     }
 
-    public void setPlayer(int inX, int inY, boolean inThere){
-        cave[inX][inY].setPlayer(inThere);
+    public void setPlayer(int inX, int inY){
+        cave[playerPrevX][playerPrevY].setPlayer(false);
+        cave[inX][inY].setPlayer(true);
+        playerPrevX = inX;
+        playerPrevY = inY;
+    }
+
+    public void setGold(int x, int y){
+        cave[goldPrevX][goldPrevY].removeGold();
+        cave[goldPrevX][goldPrevY].removeGlitter();
+        cave[x][y].setGold();
+        goldPrevX = x;
+        goldPrevY = y;
+    }
+
+    public void killWumpus(){
+        cave[wumpX][wumpY].removeWumpus();
+        if((wumpX-1) >= 0){
+            cave[wumpX-1][wumpY].removeStench();
+        }
+        if(wumpY-1 >= 0){
+            cave[wumpX][wumpY-1].removeStench();
+        }
+        if(wumpY+1 < caveSize){
+            cave[wumpX][wumpY+1].removeStench();
+        }
+        if(wumpX+1 < caveSize){
+            cave[wumpX+1][wumpY].removeStench();
+        }
+    }
+
+    public Node[][] getNodeCave(){
+        return cave;
     }
 
     public void printCave(){
@@ -138,7 +177,7 @@ public class Cave {
         //prints out Breeze
             System.out.print("|");
             for(int x = 0; x < caveSize; x++){
-                if(cave[x][y].isBreeze()) {
+                if(cave[x][y].isBreeze() && !cave[x][y].isPit()) {
                     System.out.print(" Breeze        |");
                 }else {
                     System.out.print("               |");
@@ -173,5 +212,7 @@ public class Cave {
             }
             System.out.println();
         }
+        System.out.println();
+        System.out.println();
     }
 }

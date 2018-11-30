@@ -28,6 +28,10 @@ public class Node {
         pit = true;
     }
 
+    public void removePit(){
+        pit = false;
+    }
+
     public void setBreeze(){
         breeze = true;
     }
@@ -36,16 +40,32 @@ public class Node {
         gold = true;
     }
 
+    public void removeGold(){
+        gold = false;
+    }
+
     public void setWumpus(){
         wumpus = true;
+    }
+
+    public void removeWumpus(){
+        wumpus = false;
     }
 
     public void setStench(){
         stench = true;
     }
 
+    public void removeStench(){
+        stench = false;
+    }
+
     public void setGlitter(){
         glitter = true;
+    }
+
+    public void removeGlitter(){
+        glitter = false;
     }
 
     public boolean isBreeze() {
