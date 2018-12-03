@@ -52,12 +52,22 @@ public class Player{
         updateMap.setPlayer(x,y);
         visited[x][y] = true;
         updateMap.printCave();
-        if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && canMove(x, y) && !foundGold){
+        if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && canMove(x, y) && !foundGold && !fullyExplored(x,y)){
             moveIn(x,y);
-        }else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold){
+        }else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold && !fullyExplored(x,y)){
             turnLeft();
             if(canMove(x,y)) {
                 moveIn(x, y);
+            }
+        }else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold && fullyExplored(x,y)){
+            if(direction == 2 && canMove(x,y)){
+                moveIn(x,y);
+            }else if(direction == 1 && canMove(x,y)){
+                moveIn(x,y);
+            }else if(direction == 3 && canMove(x,y)){
+                moveIn(x,y);
+            }else if(direction == 0 && canMove(x,y)){
+                moveIn(x,y);
             }
         }
         if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && haveVisited(x,y) && !foundGold){
@@ -98,6 +108,10 @@ public class Player{
         //TODO implent list of places ive been
         //xyPath holds the xy coordinates of all visited locations on the way to the gold as a list of 2 dimensional arrays, x index 0 and y index 1
         //haveVisited checks if we have visited the next cell
+    }
+
+    private void getUnstuck(int x, int y){
+
     }
 
     public void shootArrow(int x, int y){
@@ -144,13 +158,13 @@ public class Player{
 
     private boolean fullyExplored(int x, int y){
         int blockedVisited = 0;
-        if((x-1) >= 0 || visited[x-1][y]){
+        if((x-1) >= 0 || ((x-1) >= 0 && visited[x-1][y])){
             blockedVisited++;
-        }else if(y-1 >= 0 || visited[x][y-1]){
+        }else if(y-1 >= 0 || (y-1 >= 0 && visited[x][y-1])){
             blockedVisited++;
-        }else if(y+1 < caveSize || visited[x][y+1]){
+        }else if(y+1 < caveSize || (y+1 < caveSize && visited[x][y+1])){
             blockedVisited++;
-        }else if(x+1 < caveSize || visited[x+1][y]){
+        }else if(x+1 < caveSize || (x+1 < caveSize && visited[x+1][y])){
             blockedVisited++;
         }
         if(blockedVisited == 4){
