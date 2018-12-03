@@ -19,11 +19,11 @@ public class Player{
     private int score = 1000;
     private Cave updateMap;
     private int direction;                      //  0 up      1 right     2 down      3 left
-    private List<int[]> xyPath = new ArrayList<int[]>();
+    private List<int[]> xyPath = new ArrayList<>();
     private int numCellsVisited = -1;
 
 
-    public Player(int inCaveSize, Node inCave[][], Cave inUpdateMap){
+    Player(int inCaveSize, Node inCave[][], Cave inUpdateMap){
         caveSize = inCaveSize;
         cave = inCave;
         updateMap = inUpdateMap;
@@ -32,13 +32,16 @@ public class Player{
         knowledgeOfStench = new boolean[inCaveSize][inCaveSize];
         knowledgeOfWumpus = new boolean[inCaveSize][inCaveSize];
         visited           = new boolean[inCaveSize][inCaveSize];
-        chanceOfPit       = setInitialChance();
         direction = 2;
         updateMap.setPlayer(0,0);
         visited[0][0] = true;
     }
 
     public void findGold(int x, int y){
+        if(foundGold == true){
+            getOut(x,y);
+            return;
+        }
         int[] coords = {x,y};
         xyPath.add(coords);
         numCellsVisited++;
@@ -49,25 +52,29 @@ public class Player{
             foundGold = true;
             score += 1000;
         }
-        if(foundGold == true){
-            getOut(x,y);
-            return;
-        }
         updateMap.setPlayer(x,y);
         visited[x][y] = true;
         updateMap.printCave();
-
         if(!cave[x][y].isBreeze()) { setNoPit(x,y); } // if there isn't a breeze, we know that adjacent squares are not pits
-
         if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && canMove(x, y) && !foundGold){
             moveIn(x,y);
-        }else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold){
+        }else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold && !fullyExplored(x,y)){
             turnLeft();
             if(canMove(x,y)) {
                 moveIn(x, y);
             }
+        }else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold && fullyExplored(x,y)){
+            if(direction == 2 && canMove(x,y)){
+                moveIn(x,y);
+            }else if(direction == 1 && canMove(x,y)){
+                moveIn(x,y);
+            }else if(direction == 3 && canMove(x,y)){
+                moveIn(x,y);
+            }else if(direction == 0 && canMove(x,y)){
+                moveIn(x,y);
+            }
         }
-        if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && haveVisited(x,y) && !foundGold){
+        else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && haveVisited(x,y) && !foundGold){
             turnLeft();
             if(canMove(x,y)) {
                 findGold(x, y);
@@ -108,8 +115,8 @@ public class Player{
         //TODO implent list of places ive been
         //xyPath holds the xy coordinates of all visited locations on the way to the gold as a list of 2 dimensional arrays, x index 0 and y index 1
         //haveVisited checks if we have visited the next cell
+        findGold(x,y);
     }
-
     /* Sets all squared adjacent to square x,y to have no chance of being pits
      * called when there is no breeze in a square
      */
@@ -197,7 +204,7 @@ public class Player{
         return false;
     }
 
-    public boolean haveVisited(int x, int y){
+    private boolean haveVisited(int x, int y){
         if(y-1 >= 0 && direction == 0){
             return visited[x][y-1];
         }else if(x+1 < caveSize && direction == 1){
@@ -212,22 +219,19 @@ public class Player{
 
     private boolean fullyExplored(int x, int y){
         int blockedVisited = 0;
-        if((x-1) >= 0 || visited[x-1][y]){
+        if((x-1) >= 0 || ((x-1) >= 0 && visited[x-1][y])){
             blockedVisited++;
-        }else if(y-1 >= 0 || visited[x][y-1]){
+        }else if(y-1 >= 0 || (y-1 >= 0 && visited[x][y-1])){
             blockedVisited++;
-        }else if(y+1 < caveSize || visited[x][y+1]){
+        }else if(y+1 < caveSize || (y+1 < caveSize && visited[x][y+1])){
             blockedVisited++;
-        }else if(x+1 < caveSize || visited[x+1][y]){
+        }else if(x+1 < caveSize || (x+1 < caveSize && visited[x+1][y])){
             blockedVisited++;
         }
-        if(blockedVisited == 4){
-            return true;
-        }
-        return false;
+        return blockedVisited == 4;
     }
 
-    public void moveIn(int x, int y){
+    private void moveIn(int x, int y){
         score = score - 1;
         if(direction == 0){
             findGold(x, (y - 1));
@@ -242,15 +246,10 @@ public class Player{
 
     private void moveOut(int x, int y){
         score = score - 1;
-        if(direction == 0){
-            getOut(x, (y - 1));
-        }else if(direction == 1){
-            getOut((x + 1), y);
-        }else if(direction == 2){
-            getOut(x, (y + 1));
-        }else if(direction == 3){
-            getOut((x - 1), y);
-        }
+        if(direction == 0) getOut(x, (y - 1));
+        else if(direction == 1) getOut((x + 1), y);
+        else if(direction == 2) getOut(x, (y + 1));
+        else if(direction == 3) getOut((x - 1), y);
     }
 
     private void turnLeft(){
@@ -261,28 +260,20 @@ public class Player{
         }
     }
 
-    public boolean canMove(int x, int y){
+    private boolean canMove(int x, int y){
         if(direction == 0){
-            if(y - 1 < 0){
-                return false;
-            }
+            return y - 1 >= 0;
         }else if(direction == 1){
-            if(x + 1 >= caveSize){
-                return false;
-            }
+            return x + 1 < caveSize;
         }else if(direction == 2){
-            if(y + 1 >= caveSize){
-                return false;
-            }
+            return y + 1 < caveSize;
         }else if(direction == 3){
-            if(x - 1 < 0){
-                return false;
-            }
+            return x - 1 >= 0;
         }
         return true;
     }
 
-    public void getOut(int x, int y){
+    private void getOut(int x, int y){
         updateMap.setPlayer(x,y);
         updateMap.setGold(x,y);
         updateMap.printCave();
