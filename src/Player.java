@@ -9,10 +9,12 @@ public class Player{
     private boolean[][] knowledgeOfWumpus;
     private boolean[][] fullyExploredCells;
     private boolean[][] visited;
+    private int[][]     chanceOfPit;
     private boolean dead;
     private boolean foundGold = false;
     private int caveSize;
     private Node[][]cave;
+    private boolean scream = false; // if the wumpus has been shot
     private int score = 1000;
     private Cave updateMap;
     private int direction;                      //  0 up      1 right     2 down      3 left
@@ -29,6 +31,7 @@ public class Player{
         knowledgeOfStench = new boolean[inCaveSize][inCaveSize];
         knowledgeOfWumpus = new boolean[inCaveSize][inCaveSize];
         visited           = new boolean[inCaveSize][inCaveSize];
+        chanceOfPit       = new     int[inCaveSize][inCaveSize];
         direction = 2;
         updateMap.setPlayer(0,0);
         visited[0][0] = true;
@@ -52,6 +55,9 @@ public class Player{
         updateMap.setPlayer(x,y);
         visited[x][y] = true;
         updateMap.printCave();
+
+        if(!cave[x][y].isBreeze()) { setNoPit(x,y); } // if there isn't a breeze, we know that adjacent squares are not pits
+
         if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && canMove(x, y) && !foundGold){
             moveIn(x,y);
         }else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold){
@@ -71,15 +77,16 @@ public class Player{
                 findGold(x, y);
             }else{
                 turnLeft();
-            }if(canMove(x,y)) {
+            }
+            if(canMove(x,y)) {
                 findGold(x, y);
             }else{
                 System.out.println("help im entirely stuck");
             }
         }
-        else if(!cave[x][y].isBreeze() && cave[x][y].isStench() && !foundGold){
+        else if(!cave[x][y].isBreeze() && cave[x][y].isStench() && !foundGold){  // if stench, shoot arrow to the left (?)
             turnLeft();
-            shootArrow(x, y);
+            scream = shootArrow(x, y);
             updateMap.printCave();
             if(canMove(x,y)) {
                 moveIn(x, y);
@@ -90,7 +97,9 @@ public class Player{
             numCellsVisited--;
             int[] prevXY = xyPath.get(numCellsVisited);
             findGold(prevXY[0],prevXY[1]);
+            knowledgeOfBreeze[x][y]=true;
         }
+
         //TODO handle breeze
         //TODO hanle breeze and stench
         //TODO handle all situations where have visited is true and check if its the only way to go
@@ -100,33 +109,75 @@ public class Player{
         //haveVisited checks if we have visited the next cell
     }
 
-    public void shootArrow(int x, int y){
+    /* Sets all squared adjacent to square x,y to have no chance of being pits
+     * called when there is no breeze in a square
+     */
+    private void setNoPit(int x, int y) {
+        if (x < caveSize-1) chanceOfPit[x+1][y] = 0;
+        if (x > 0 ) chanceOfPit[x-1][y] = 0;
+        if (y < caveSize-1) chanceOfPit[x][y+1] = 0;
+        if (y > 0) chanceOfPit[x][y-1] = 0;
+    }
+
+    private void calculatePitOdds() {
+
+        for (int x = 0; x < caveSize; x++) {
+            for (int y = 0; y < caveSize; y++) {
+                int countPossiblePits = 0;
+                if (knowledgeOfBreeze[x][y]) {
+                    int potentialPits = numPotentialPits(x,y); // number of squares that could be pits
+
+
+
+
+                }
+
+            }
+        }
+
+    }
+
+    private int numPotentialPits(int x, int y) {
+        int count = 0;
+        if (x < caveSize-1 && !knowledgeOfPits[x+1][y]) count++;
+        if (x > 0 && !knowledgeOfPits[x-1][y]) count++;
+        if (y < caveSize-1 && !knowledgeOfPits[x][y+1]) count++;
+        if (y > 0 && !knowledgeOfPits[x][y-1]) count++;
+        return count;
+    }
+
+    public boolean shootArrow(int x, int y){
         score = score - 10;
         if(direction == 0){
             for(int v = y; v >=0; v--){
                 if(cave[x][v].isWumpus()){
                     updateMap.killWumpus();
+                    return true;
                 }
             }
         }else if(direction == 1){
             for(int h = x; h < caveSize; h++){
                 if(cave[h][y].isWumpus()){
                     updateMap.killWumpus();
+                    return true;
                 }
             }
         }else if(direction == 2){
             for(int v = y; v < caveSize; v++){
                 if(cave[x][v].isWumpus()){
                     updateMap.killWumpus();
+                    return true;
                 }
             }
         }else if(direction == 3){
             for(int h = x; h >= 0; h--){
                 if(cave[h][y].isWumpus()){
                     updateMap.killWumpus();
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     public boolean haveVisited(int x, int y){
