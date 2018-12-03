@@ -13,7 +13,7 @@ public class Player{
     private boolean foundGold = false;
     private int caveSize;
     private Node[][]cave;
-    private int score;
+    private int score = 1000;
     private Cave updateMap;
     private int direction;                      //  0 up      1 right     2 down      3 left
     private List<int[]> xyPath = new ArrayList<int[]>();
@@ -43,9 +43,9 @@ public class Player{
         }
         if(cave[x][y].isGlitter()){
             foundGold = true;
+            score += 1000;
         }
         if(foundGold == true){
-            score += 1000;
             getOut(x,y);
             return;
         }
