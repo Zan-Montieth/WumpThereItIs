@@ -4,10 +4,6 @@ import java.util.List;
 public class Player{
 
     private boolean[][] knowledgeOfBreeze;
-    private boolean[][] knowledgeOfStench;
-    private boolean[][] knowledgeOfPits;
-    private boolean[][] knowledgeOfWumpus;
-    private boolean[][] fullyExploredCells;
     private boolean[][] visited;
     private boolean dead;
     private boolean foundGold = false;
@@ -16,18 +12,15 @@ public class Player{
     private int score;
     private Cave updateMap;
     private int direction;                      //  0 up      1 right     2 down      3 left
-    private List<int[]> xyPath = new ArrayList<int[]>();
+    private List<int[]> xyPath = new ArrayList<>();
     private int numCellsVisited = -1;
 
 
-    public Player(int inCaveSize, Node inCave[][], Cave inUpdateMap){
+    Player(int inCaveSize, Node inCave[][], Cave inUpdateMap){
         caveSize = inCaveSize;
         cave = inCave;
         updateMap = inUpdateMap;
         knowledgeOfBreeze = new boolean[inCaveSize][inCaveSize];
-        knowledgeOfPits   = new boolean[inCaveSize][inCaveSize];
-        knowledgeOfStench = new boolean[inCaveSize][inCaveSize];
-        knowledgeOfWumpus = new boolean[inCaveSize][inCaveSize];
         visited           = new boolean[inCaveSize][inCaveSize];
         direction = 2;
         updateMap.setPlayer(0,0);
@@ -111,11 +104,11 @@ public class Player{
         findGold(x,y);
     }
 
-    private void getUnstuck(int x, int y){
+//    private void getUnstuck(int x, int y){
+//
+//    }
 
-    }
-
-    public void shootArrow(int x, int y){
+    private void shootArrow(int x, int y){
         score = score - 10;
         if(direction == 0){
             for(int v = y; v >=0; v--){
@@ -144,7 +137,7 @@ public class Player{
         }
     }
 
-    public boolean haveVisited(int x, int y){
+    private boolean haveVisited(int x, int y){
         if(y-1 >= 0 && direction == 0){
             return visited[x][y-1];
         }else if(x+1 < caveSize && direction == 1){
@@ -168,13 +161,10 @@ public class Player{
         }else if(x+1 < caveSize || (x+1 < caveSize && visited[x+1][y])){
             blockedVisited++;
         }
-        if(blockedVisited == 4){
-            return true;
-        }
-        return false;
+        return blockedVisited == 4;
     }
 
-    public void moveIn(int x, int y){
+    private void moveIn(int x, int y){
         score = score - 1;
         if(direction == 0){
             findGold(x, (y - 1));
@@ -189,15 +179,10 @@ public class Player{
 
     private void moveOut(int x, int y){
         score = score - 1;
-        if(direction == 0){
-            getOut(x, (y - 1));
-        }else if(direction == 1){
-            getOut((x + 1), y);
-        }else if(direction == 2){
-            getOut(x, (y + 1));
-        }else if(direction == 3){
-            getOut((x - 1), y);
-        }
+        if(direction == 0) getOut(x, (y - 1));
+        else if(direction == 1) getOut((x + 1), y);
+        else if(direction == 2) getOut(x, (y + 1));
+        else if(direction == 3) getOut((x - 1), y);
     }
 
     private void turnLeft(){
@@ -208,28 +193,20 @@ public class Player{
         }
     }
 
-    public boolean canMove(int x, int y){
+    private boolean canMove(int x, int y){
         if(direction == 0){
-            if(y - 1 < 0){
-                return false;
-            }
+            return y - 1 >= 0;
         }else if(direction == 1){
-            if(x + 1 >= caveSize){
-                return false;
-            }
+            return x + 1 < caveSize;
         }else if(direction == 2){
-            if(y + 1 >= caveSize){
-                return false;
-            }
+            return y + 1 < caveSize;
         }else if(direction == 3){
-            if(x - 1 < 0){
-                return false;
-            }
+            return x - 1 >= 0;
         }
         return true;
     }
 
-    public void getOut(int x, int y){
+    private void getOut(int x, int y){
         updateMap.setPlayer(x,y);
         updateMap.setGold(x,y);
         updateMap.printCave();
@@ -255,12 +232,12 @@ public class Player{
     }
 
 
-    public void printKnowledgeOfBreezes(){
-        for(int y = 0; y < caveSize; y++){
-            for(int x = 0; x < caveSize; x++){
-                System.out.print(knowledgeOfBreeze[x][y] + " ");
-            }
-            System.out.println();
-        }
-    }
+//    public void printKnowledgeOfBreezes(){
+//        for(int y = 0; y < caveSize; y++){
+//            for(int x = 0; x < caveSize; x++){
+//                System.out.print(knowledgeOfBreeze[x][y] + " ");
+//            }
+//            System.out.println();
+//        }
+//    }
 }
