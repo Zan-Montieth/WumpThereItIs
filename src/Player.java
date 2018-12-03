@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,7 @@ public class Player{
     private boolean[][] knowledgeOfWumpus;
     private boolean[][] fullyExploredCells;
     private boolean[][] visited;
-    private int[][]     chanceOfPit;
+    private double [][] chanceOfPit;
     private boolean dead;
     private boolean foundGold = false;
     private int caveSize;
@@ -31,7 +32,7 @@ public class Player{
         knowledgeOfStench = new boolean[inCaveSize][inCaveSize];
         knowledgeOfWumpus = new boolean[inCaveSize][inCaveSize];
         visited           = new boolean[inCaveSize][inCaveSize];
-        chanceOfPit       = new     int[inCaveSize][inCaveSize];
+        chanceOfPit       = setInitialChance();
         direction = 2;
         updateMap.setPlayer(0,0);
         visited[0][0] = true;
@@ -119,15 +120,19 @@ public class Player{
         if (y > 0) chanceOfPit[x][y-1] = 0;
     }
 
+    /* Method for checking all squares on the map to find potential of pits on any square adjacent to a known breeze
+     * TODO: logic for places where pit chance is weighted by other breezes i.e. there are multiple configurations for breeze pit setups in an area
+     */
     private void calculatePitOdds() {
 
         for (int x = 0; x < caveSize; x++) {
             for (int y = 0; y < caveSize; y++) {
-                int countPossiblePits = 0;
                 if (knowledgeOfBreeze[x][y]) {
-                    int potentialPits = numPotentialPits(x,y); // number of squares that could be pits
+                    ArrayList<int[]> potentialPits = potentialPits(x,y); // number of squares that could be pits
 
-
+                    for (int[] position: potentialPits) { // for position in potential pits
+                        chanceOfPit[position[0]][position[1]] = 1/(potentialPits.size());
+                    }
 
 
                 }
@@ -137,13 +142,25 @@ public class Player{
 
     }
 
-    private int numPotentialPits(int x, int y) {
-        int count = 0;
-        if (x < caveSize-1 && !knowledgeOfPits[x+1][y]) count++;
-        if (x > 0 && !knowledgeOfPits[x-1][y]) count++;
-        if (y < caveSize-1 && !knowledgeOfPits[x][y+1]) count++;
-        if (y > 0 && !knowledgeOfPits[x][y-1]) count++;
-        return count;
+    private ArrayList<int[]> potentialPits(int x, int y) {
+        ArrayList<int[]> potentialPits = new ArrayList<int[]>();
+        if (x < caveSize-1 && !knowledgeOfPits[x+1][y]) {
+            int[] xyArray = {x+1,y};
+            potentialPits.add( xyArray );
+        }
+        if (x > 0 && !knowledgeOfPits[x-1][y]) {
+            int[] xyArray = {x-1,y};
+            potentialPits.add( xyArray );
+        }
+        if (y < caveSize-1 && !knowledgeOfPits[x][y+1]) {
+            int[] xyArray = {x,y+1};
+            potentialPits.add( xyArray );
+        }
+        if (y > 0 && !knowledgeOfPits[x][y-1]) {
+            int[] xyArray = {x,y-1};
+            potentialPits.add( xyArray );
+        }
+        return potentialPits;
     }
 
     public boolean shootArrow(int x, int y){
@@ -298,5 +315,15 @@ public class Player{
             }
             System.out.println();
         }
+    }
+
+    private double[][] setInitialChance () {
+        double[][] chance = new double[caveSize][caveSize];
+        for (int x = 0; x < caveSize; x++) {
+            for (int y = 0; y < caveSize; y++) {
+                chance[x][y] = -1;
+            }
+        }
+        return chance;
     }
 }
