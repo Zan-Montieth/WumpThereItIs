@@ -35,6 +35,11 @@ public class Player{
     }
 
     public void findGold(int x, int y){
+        if(foundGold == true){
+            score += 1000;
+            getOut(x,y);
+            return;
+        }
         int[] coords = {x,y};
         xyPath.add(coords);
         numCellsVisited++;
@@ -43,11 +48,6 @@ public class Player{
         }
         if(cave[x][y].isGlitter()){
             foundGold = true;
-        }
-        if(foundGold == true){
-            score += 1000;
-            getOut(x,y);
-            return;
         }
         updateMap.setPlayer(x,y);
         visited[x][y] = true;
@@ -70,7 +70,7 @@ public class Player{
                 moveIn(x,y);
             }
         }
-        if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && haveVisited(x,y) && !foundGold){
+        else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && haveVisited(x,y) && !foundGold){
             turnLeft();
             if(canMove(x,y)) {
                 findGold(x, y);
@@ -108,6 +108,7 @@ public class Player{
         //TODO implent list of places ive been
         //xyPath holds the xy coordinates of all visited locations on the way to the gold as a list of 2 dimensional arrays, x index 0 and y index 1
         //haveVisited checks if we have visited the next cell
+        findGold(x,y);
     }
 
     private void getUnstuck(int x, int y){
