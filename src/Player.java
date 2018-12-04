@@ -8,6 +8,7 @@ public class Player{
     private boolean[][] knowledgeOfStench;
     private boolean[][] knowledgeOfPits;
     private boolean[][] knowledgeOfWumpus;
+    private boolean[][] fullyExploredCells;
     private boolean[][] visited;
     private double [][] chanceOfPit;
     private boolean dead;
@@ -102,13 +103,14 @@ public class Player{
                 moveIn(x, y);
             }
         }
-        else if(cave[x][y].isBreeze() && !foundGold){
+        else if(cave[x][y].isBreeze() && !cave[x][y].isStench() && !foundGold){
             xyPath.remove(numCellsVisited);
             numCellsVisited--;
             int[] prevXY = xyPath.get(numCellsVisited);
             findGold(prevXY[0],prevXY[1]);
             knowledgeOfBreeze[x][y]=true;
         }
+
 
         //TODO handle breeze
         //TODO hanle breeze and stench
@@ -141,13 +143,9 @@ public class Player{
                     for (int[] position: potentialPits) { // for position in potential pits
                         chanceOfPit[position[0]][position[1]] = 1/(potentialPits.size());
                     }
-
-
                 }
-
             }
         }
-
     }
 
     private ArrayList<int[]> potentialPits(int x, int y) {
