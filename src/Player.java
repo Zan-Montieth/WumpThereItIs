@@ -8,15 +8,14 @@ public class Player{
     private boolean[][] knowledgeOfStench;
     private boolean[][] knowledgeOfPits;
     private boolean[][] knowledgeOfWumpus;
-    private boolean[][] fullyExploredCells;
     private boolean[][] visited;
     private double [][] chanceOfPit;
     private boolean dead;
-    private boolean foundGold = false;
+    private boolean foundGold;
     private int caveSize;
     private Node[][]cave;
-    private boolean scream = false; // if the wumpus has been shot
-    private int score = 1000;
+    private boolean scream; // if the wumpus has been shot
+    private int score = 0;
     private Cave updateMap;
     private int direction;                      //  0 up      1 right     2 down      3 left
     private List<int[]> xyPath = new ArrayList<>();
@@ -39,13 +38,6 @@ public class Player{
     }
 
     public void findGold(int x, int y){
-        if(foundGold == true){
-            getOut(x,y);
-            return;
-        }
-        int[] coords = {x,y};
-        xyPath.add(coords);
-        numCellsVisited++;
         if(cave[x][y].isPit()){
             System.out.println("you died");
         }
@@ -53,6 +45,13 @@ public class Player{
             foundGold = true;
             score += 1000;
         }
+        if(foundGold == true){
+            getOut(x,y);
+            return;
+        }
+        int[] coords = {x,y};
+        xyPath.add(coords);
+        numCellsVisited++;
         updateMap.setPlayer(x,y);
         visited[x][y] = true;
         updateMap.printCave();
@@ -63,6 +62,8 @@ public class Player{
             turnLeft();
             if(canMove(x,y)) {
                 moveIn(x, y);
+            }else{
+                findGold(x,y);
             }
         }else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold && fullyExplored(x,y)){
             if(direction == 2 && canMove(x,y)){
@@ -101,7 +102,7 @@ public class Player{
                 moveIn(x, y);
             }
         }
-        else if(cave[x][y].isBreeze() && !cave[x][y].isStench() && !foundGold){
+        else if(cave[x][y].isBreeze() && !foundGold){
             xyPath.remove(numCellsVisited);
             numCellsVisited--;
             int[] prevXY = xyPath.get(numCellsVisited);
@@ -116,7 +117,6 @@ public class Player{
         //TODO implent list of places ive been
         //xyPath holds the xy coordinates of all visited locations on the way to the gold as a list of 2 dimensional arrays, x index 0 and y index 1
         //haveVisited checks if we have visited the next cell
-        findGold(x,y);
     }
     /* Sets all squared adjacent to square x,y to have no chance of being pits
      * called when there is no breeze in a square
