@@ -16,7 +16,7 @@ public class Player{
     private int caveSize;
     private Node[][]cave;
     private boolean scream = false; // if the wumpus has been shot
-    private int score = 1000;
+    private int score = 0;
     private Cave updateMap;
     private int direction;                      //  0 up      1 right     2 down      3 left
     private List<int[]> xyPath = new ArrayList<>();
@@ -41,9 +41,9 @@ public class Player{
     public void findGold(int x, int y){
         if(cave[x][y].isGlitter()){
             foundGold = true;
+            score += 1000;
         }
         if(foundGold == true){
-            score += 1000;
             getOut(x,y);
             return;
         }
@@ -56,7 +56,7 @@ public class Player{
         updateMap.setPlayer(x,y);
         visited[x][y] = true;
         updateMap.printCave();
-        if(!cave[x][y].isBreeze()) { setNoPit(x,y); } // if there isn't a breeze, we know that adjacent squares are not pits
+        if(!cave[x][y].isBreeze() && !foundGold) { setNoPit(x,y); } // if there isn't a breeze, we know that adjacent squares are not pits
         if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && canMove(x, y) && !foundGold){
             moveIn(x,y);
         }else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold && !fullyExplored(x,y)){
@@ -103,13 +103,14 @@ public class Player{
                 moveIn(x, y);
             }
         }
-        else if(cave[x][y].isBreeze() && !cave[x][y].isStench() && !foundGold){
+        else if(cave[x][y].isBreeze() && !foundGold){
             xyPath.remove(numCellsVisited);
             numCellsVisited--;
             int[] prevXY = xyPath.get(numCellsVisited);
             findGold(prevXY[0],prevXY[1]);
             knowledgeOfBreeze[x][y]=true;
         }
+
 
         //TODO handle breeze
         //TODO hanle breeze and stench
@@ -142,13 +143,9 @@ public class Player{
                     for (int[] position: potentialPits) { // for position in potential pits
                         chanceOfPit[position[0]][position[1]] = 1/(potentialPits.size());
                     }
-
-
                 }
-
             }
         }
-
     }
 
     private ArrayList<int[]> potentialPits(int x, int y) {
