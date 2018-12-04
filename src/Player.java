@@ -32,6 +32,7 @@ public class Player{
         knowledgeOfStench = new boolean[inCaveSize][inCaveSize];
         knowledgeOfWumpus = new boolean[inCaveSize][inCaveSize];
         visited           = new boolean[inCaveSize][inCaveSize];
+        chanceOfPit       = setInitialChance();
         direction = 2;
         updateMap.setPlayer(0,0);
         visited[0][0] = true;
@@ -135,7 +136,7 @@ public class Player{
         for (int x = 0; x < caveSize; x++) {
             for (int y = 0; y < caveSize; y++) {
                 if (knowledgeOfBreeze[x][y]) {
-                    ArrayList<int[]> potentialPits = potentialPits(x,y); // number of squares that could be pits
+                    ArrayList<int[]> potentialPits = potentialPits(x,y); //  squares that could be pits
 
                     for (int[] position: potentialPits) { // for position in potential pits
                         chanceOfPit[position[0]][position[1]] = 1/(potentialPits.size());
