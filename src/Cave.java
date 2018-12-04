@@ -1,3 +1,5 @@
+import java.util.concurrent.*; // for timer
+
 public class Cave {
 
     private int caveSize;
@@ -214,5 +216,11 @@ public class Cave {
         }
         System.out.println();
         System.out.println();
+
+//        try { TimeUnit.SECONDS.sleep((long)1.5); }  // Sleep for 1 second after printing
+//        catch (java.lang.InterruptedException e) {
+//            System.out.println("Error:"+e);
+//        }
+
     }
 }
