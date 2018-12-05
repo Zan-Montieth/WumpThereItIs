@@ -192,6 +192,7 @@ public class Player{
                 "Current score is "+score+". " +
                 "Exiting the cave.");
         updateMap.printCave();
+        foundGold = true;
 
         getOut(startX,startY);
         score += 1000;
