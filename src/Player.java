@@ -53,7 +53,7 @@ public class Player{
             recursiveSafeSearch(initialX,initialY);
             if(foundGold){
                 System.out.println("won a thing did a win");
-                break;
+                return;
             }
             else {
                 updateMap.setPlayer(finalRecurX,finalRecurY);
@@ -80,6 +80,12 @@ public class Player{
      * If you find an unsafe square, i.e. there is a breeze or stench, it will update the KB and move back
      * Returns true if gold has been found, else returns false if it has not
      */
+
+    public void checkDead(int x, int y ){
+        if (cave[x][y].isPit() || cave[x][y].isWumpus()) {      // if this position is a pit or a wumpus
+            agentDied(x,y);         // method to update that a person died, 1st base case of recursive call
+        }
+    }
     public boolean recursiveSafeSearch(int initialX, int initialY) {
         //updateVisitedOnMap();
 
@@ -604,9 +610,11 @@ public class Player{
     private void getFromTo(int startX, int startY, int endX, int endY){
         updateMap.setPlayer(startX,startY);
         updateMap.printCave();
+        checkDead(startX,startY);
         if(startX == endX && startY == endY){
             updateMap.setPlayer(startX,startY);
             updateMap.printCave();
+            checkDead(startX,startY);
             return;
         }else{
             if((startX-1) >= 0 && visited[startX-1][startY] && Math.abs(startX - endX ) > Math.abs((startX- 1) - endX) ){
