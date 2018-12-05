@@ -592,6 +592,8 @@ public class Player{
         updateMap.setPlayer(startX,startY);
         updateMap.printCave();
         if(startX == endX && startY == endY){
+            updateMap.setPlayer(startX,startY);
+            updateMap.printCave();
             return;
         }else{
             if((startX-1) >= 0 && visited[startX-1][startY] && Math.abs(startX - endX ) > Math.abs((startX- 1) - endX) ){
