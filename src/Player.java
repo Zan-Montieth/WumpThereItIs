@@ -68,11 +68,6 @@ public class Player{
             return false;           // player is dead, return false to exit recursive stack
         }
 
-        else if (cave[x][y].isGlitter()) {       // if you find the Glitter indicating gold
-            pickUpGold(x,y);        // method to return to cave entrance if gold is found, 2nd base case
-            return true;            // gold has been found, return true to exit the recursive stack
-        }
-
         else if (hasBreeze && hasStench) {      // if there is a breeze and a stench
             knowledgeOfBreeze[x][y] = true;
             knowledgeOfStench[x][y] = true;
@@ -84,6 +79,11 @@ public class Player{
 
         else if (hasStench) {
             knowledgeOfStench[x][y] = true;
+        }
+
+        else if (cave[x][y].isGlitter()) {       // if you find the Glitter indicating gold
+            pickUpGold(x,y);        // method to return to cave entrance if gold is found, 2nd base case
+            return true;            // gold has been found, return true to exit the recursive stack
         }
 
         else {                      // if there is nothing of note
@@ -187,6 +187,9 @@ public class Player{
         return null;
     }
 
+    /* Method to get all neighbors around a point
+     * returns an arraylist of 2 integers, (x,y) for each neighbor
+     */
     private ArrayList<int[]> getNeighbors(int x, int y) {
         ArrayList<int[]> neighbors = new ArrayList<int[]>();
         if (x < caveSize-1) {
