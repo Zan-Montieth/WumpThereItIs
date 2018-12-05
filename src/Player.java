@@ -42,6 +42,30 @@ public class Player{
         visited[0][0] = true;
     }
 
+
+    public void search(int initialX, int initialY){
+
+        while(!dead ){
+
+            recursiveSafeSearch(initialX,initialY);
+            if(foundGold){
+                System.out.println("won a thing did a win");
+                break;
+            }
+            int[] coord = getShwifty();
+
+            dead = true;
+
+
+        }
+
+
+
+    }
+
+
+
+
     /* Recursive method to explore every safe square accessible from the initial square
      * If you find the gold, it will exit and call return to start via pathBFS
      * If you find an unsafe square, i.e. there is a breeze or stench, it will update the KB and move back
@@ -363,16 +387,16 @@ public class Player{
         for (int x = 0; x < caveSize; x++) {   // anything that could be a pit is a pit!!!! unless its not
             for (int y = 0; y < caveSize; y++) {
                 if (knowledgeOfBreeze[x][y]) {   //  squares that could be pits
-                    if(x+1<caveSize && safeSquares[x+1][y]) {
+                    if(x+1<caveSize && !safeSquares[x+1][y]) {
                         chanceOfPit[x + 1][y] +=1;
                     }
-                    if(x-1>0 && safeSquares[x-1][y]) {
+                    if(x-1>0 && !safeSquares[x-1][y]) {
                         chanceOfPit[x - 1][y] +=1;
                     }
-                    if(y+1<caveSize&& safeSquares[x][y+1]) {
+                    if(y+1<caveSize&& !safeSquares[x][y+1]) {
                         chanceOfPit[x][y+1] +=1;
                     }
-                    if(y-1>0&& safeSquares[x][y-1]) {
+                    if(y-1>0&& !safeSquares[x][y-1]) {
                         chanceOfPit[x][y-1] +=1;
                     }
                 }
@@ -398,6 +422,8 @@ public class Player{
             }
         }
         int [] coord = new int[2];
+
+        System.out.println("Gettin shwifty, going to "+ tempX+", "+ tempY);
 
         coord[0]= tempX;
         coord[1]= tempY;
@@ -441,6 +467,7 @@ public class Player{
             int[] xyArray = {x,y-1};
             potentialPits.add( xyArray );
         }
+
         return potentialPits;
     }
 
