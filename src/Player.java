@@ -54,8 +54,7 @@ public class Player{
             }
             findWumpus();
             int[] coord = getShwifty();
-            getFromTo(0,0,coord[0], coord[1]);
-            updateMap.printCave();
+            getFromTo(finalRecurX,finalRecurY,coord[0], coord[1]);
             dead = true;
 
 
@@ -155,7 +154,13 @@ public class Player{
     }
 
     private void updateVisitedOnMap(){
-
+        for(int y = 0; y < caveSize; y++){
+            for(int x = 0; x < caveSize; x++){
+                if(visited[x][y]){
+                    updateMap.setVisited(x,y);
+                }
+            }
+        }
     }
 
     private void setSafeNeighbors(int x, int y) {
@@ -364,9 +369,6 @@ public class Player{
         if (y > 0) chanceOfPit[x][y-1] = 0;
     }
 
-    /* Method for checking all squares on the map to find potential of pits on any square adjacent to a known breeze
-     * TODO: logic for places where pit chance is weighted by other breezes i.e. there are multiple configurations for breeze pit setups in an area
-     */
 
 
     // calculates the least risky place to explore given current knowledge
@@ -696,6 +698,7 @@ public class Player{
                     direction = 1;
                     getFromTo(0,0,x,y);
                     shootArrow(x,y);
+
                 }
             }
         }
