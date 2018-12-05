@@ -48,7 +48,7 @@ public class Player{
      * Returns true if gold has been found, else returns false if it has not
      */
     public boolean recursiveSafeSearch(int initialX, int initialY) {
-
+        updateVisitedOnMap();
         findWumpus();
 
         updateMap.setPlayer(initialX,initialY);
@@ -127,6 +127,16 @@ public class Player{
 
         // TODO: Implement logic for when it isn't safe to move, pick the best option
         return false;
+    }
+
+    private void updateVisitedOnMap(){
+        for(int y = 0; y < caveSize; y++){
+            for(int x = 0; x < caveSize; x++){
+                if(visited[x][y]){
+                    updateMap.setVisited(x,y);
+                }
+            }
+        }
     }
 
     private void setSafeNeighbors(int x, int y) {
