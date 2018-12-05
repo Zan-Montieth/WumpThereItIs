@@ -91,6 +91,10 @@ public class Cave {
         playerPrevY = inY;
     }
 
+    public void setVisited(int x, int y){
+        cave[x][y].setVisited();
+    }
+
     public void setGold(int x, int y){
         cave[goldPrevX][goldPrevY].removeGold();
         cave[goldPrevX][goldPrevY].removeGlitter();
@@ -201,9 +205,13 @@ public class Cave {
             for(int x = 0; x < caveSize; x++){
                 if(cave[x][y].isPlayer()) {
                     System.out.print(" Player        |");
-                }else {
-                    System.out.print("               |");
+                }else if(cave[x][y].isVisited()){
+                    System.out.print(" Visited       |");
                 }
+                else {
+                }
+                System.out.print("               |");
+
             }
             System.out.println();
 

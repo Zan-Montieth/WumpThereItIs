@@ -54,8 +54,9 @@ public class Player{
                 System.out.println("won a thing did a win");
                 break;
             }
+            findWumpus();
             int[] coord = getShwifty();
-
+            getFromTo(0,0,coord[0], coord[1]);
             dead = true;
 
 
@@ -74,6 +75,7 @@ public class Player{
      * Returns true if gold has been found, else returns false if it has not
      */
     public boolean recursiveSafeSearch(int initialX, int initialY) {
+        updateVisitedOnMap();
 
         updateMap.setPlayer(initialX,initialY);
         updateMap.printCave();
@@ -152,6 +154,16 @@ public class Player{
         // TODO: Implement logic for when it isn't safe to move, pick the best option
 
         return false;
+    }
+
+    private void updateVisitedOnMap(){
+        for(int y = 0; y < caveSize; y++){
+            for(int x = 0; x < caveSize; x++){
+                if(visited[x][y]){
+                    updateMap.setVisited(x,y);
+                }
+            }
+        }
     }
 
     private void setSafeNeighbors(int x, int y) {
@@ -380,7 +392,11 @@ public class Player{
 
         for (int x = 0; x < caveSize; x++) {   // anything that could be a pit is a pit!!!! unless its not
             for (int y = 0; y < caveSize; y++) {
-                if (knowledgeOfBreeze[x][y]) {   //  squares that could be pits
+                if(knowledgeOfWumpus[x][y]){   // dont get caught by the wumpus!!
+                    chanceOfPit[x][y]= 69;
+                }
+                if (knowledgeOfBreeze[x][y] || knowledgeOfStench[x][y]) {   //  squares that could be pits
+
                     if(x+1<caveSize && !safeSquares[x+1][y]) {
                         chanceOfPit[x + 1][y] +=1;
                     }
@@ -418,6 +434,7 @@ public class Player{
         int [] coord = new int[2];
 
         System.out.println("Gettin shwifty, going to "+ tempX+", "+ tempY);
+        updateVisitedOnMap();
 
         coord[0]= tempX;
         coord[1]= tempY;
@@ -580,6 +597,24 @@ public class Player{
         }
     }
 
+    private void getFromTo(int startX, int startY, int endX, int endY){
+        updateMap.setPlayer(startX,startY);
+        updateMap.printCave();
+        if(startX == endX && startY == endY){
+            return;
+        }else{
+            if((startX-1) >= 0 && visited[startX-1][startY] && Math.abs(startX - endX ) > Math.abs((startX- 1) - endX) ){
+                getFromTo(startX - 1,startY,endX,endY);
+            }else if(startY-1 >= 0 && visited[startX][startY-1] && Math.abs(startY - endY ) > Math.abs((startY- 1) - endY)){
+                getFromTo(startX,startY - 1,endX,endY);
+            }else if(startY+1 < caveSize && visited[startX][startY+1] && Math.abs(startY - endY ) > Math.abs((startY + 1) - endY)){
+                getFromTo(startX,startY+1,endX,endY);
+            }else if(startX+1 < caveSize && visited[startX+1][startY] && Math.abs(startX - endX ) > Math.abs((startX + 1) - endY)){
+                getFromTo(startX+1,startY,endX,endY);
+            }
+        }
+    }
+
     private void checkForVisited(int x, int y){
         if((x-1) >= 0 && visited[x-1][y]){
             direction = 3;
@@ -623,5 +658,61 @@ public class Player{
             }
         }
         return inCo;
+    }
+
+
+    private void findWumpus(){
+        for(int y = 0; y < caveSize; y++){
+            for(int x =  0; x < caveSize; x++){
+                if(knowledgeOfStench[x][y]){
+                    if(x - 1 >= 0 && y - 1 >= 0 && knowledgeOfStench[x - 1][y - 1]){
+                        if(!visited[x][y-1]){
+                            //TODO Kill the wumpus at x, y - 1
+                            System.out.println("wumpus is at x = " + x + "  y = " + (y -1));
+                            return;
+                        }else if(!visited[x-1][y]) {
+                            //TODO Kill the wumpus at x - 1, y
+                            System.out.println("wumpus is at x = " + (x - 1) + "  y = " + (y));
+                            return;
+                        }
+                    }
+                    if(x + 1 < caveSize && y - 1 >= 0 && knowledgeOfStench[x + 1][y - 1]){
+                        if(!visited[x][y-1]){
+                            //TODO Kill the wumpus at x, y - 1
+                            System.out.println("wumpus is at x = " + (x) + "  y = " + (y - 1));
+                            return;
+                        }else if(!visited[x + 1][y]) {
+                            //TODO Kill the wumpus at x + 1, y
+                            System.out.println("wumpus is at x = " + (x + 1) + "  y = " + (y));
+                            return;
+                        }
+                    }
+                    if(x - 1 >= 0 && y + 1 < caveSize && knowledgeOfStench[x - 1][y + 1]){
+                        if(!visited[x][y+1]){
+                            //TODO Kill the wumpus at x, y + 1
+                            System.out.println("wumpus is at x = " + (x) + "  y = " + (y + 1));
+                            return;
+                        }else if(!visited[x-1][y]) {
+                            //TODO Kill the wumpus at x - 1, y
+                            System.out.println("wumpus is at x = " + (x - 1) + "  y = " + (y));
+                            return;
+                        }
+                    }
+                    if(x + 1 < caveSize && y + 1 < caveSize && knowledgeOfStench[x + 1][y + 1]){
+                        if(!visited[x][y+1]){
+                            //TODO Kill the wumpus at x, y + 1
+                            System.out.println("wumpus is at x = " + (x) + "  y = " + (y + 1));
+                            return;
+                        }else if(!visited[x+1][y]) {
+                            //TODO Kill the wumpus at x - 1, y
+                            System.out.println("wumpus is at x = " + (x - 1) + "  y = " + (y));
+                            return;
+                        }
+                    }
+
+                }
+            }
+        }
+
     }
 }

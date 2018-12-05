@@ -9,6 +9,7 @@ public class Node {
     private boolean wumpus = false;
     private boolean stench = false;
     private boolean player = false;
+    private boolean visited = false;
 
 
     public Node(int inX, int inY){
@@ -62,6 +63,14 @@ public class Node {
 
     public void setGlitter(){
         glitter = true;
+    }
+
+    public void setVisited(){
+        visited = true;
+    }
+
+    public boolean isVisited(){
+        return visited;
     }
 
     public void removeGlitter(){
