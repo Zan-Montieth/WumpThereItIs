@@ -10,6 +10,7 @@ public class Player{
     private boolean[][] safeSquares;
     private boolean[][] visited;
     private double [][] chanceOfPit;
+    private int    [][][] coords;
     private boolean dead;
     private boolean foundGold;
     private int caveSize;
@@ -34,6 +35,7 @@ public class Player{
         knowledgeOfWumpus = new boolean[inCaveSize][inCaveSize];
         visited           = new boolean[inCaveSize][inCaveSize];
         safeSquares       = new boolean[inCaveSize][inCaveSize];
+        coords            = setInitialCoords();
         safeSquares[0][0] = true;                                   // The initial must be safe
         chanceOfPit       = setInitialChance();
         direction = 2;
@@ -218,6 +220,7 @@ public class Player{
             ArrayList<int[]> neighbors = getNeighbors(x,y);
 
             for (int[] coords : neighbors) {
+
                 if (safeSquares[x][y] && !BFSpaths.containsKey(coords)) {
                     BFSpaths.put(coords, currentPosition);
                     unvisitedNodes.add(coords);
@@ -607,5 +610,17 @@ public class Player{
             }
         }
         return chance;
+    }
+
+    private int[][][] setInitialCoords(){
+        int[][][] inCo = new int[caveSize][caveSize][2];
+
+        for (int x = 0; x < caveSize; x++) {
+            for (int y = 0; y < caveSize; y++) {
+                int[] inray = {x,y};
+                inCo[x][y] = inray;
+            }
+        }
+        return inCo;
     }
 }
