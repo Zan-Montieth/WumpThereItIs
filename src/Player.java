@@ -53,7 +53,7 @@ public class Player{
                 break;
             }
             int[] coord = getShwifty();
-
+            getFromTo(0,0,coord[0], coord[1]);
             dead = true;
 
 
@@ -73,7 +73,6 @@ public class Player{
      */
     public boolean recursiveSafeSearch(int initialX, int initialY) {
         updateVisitedOnMap();
-        findWumpus();
 
         updateMap.setPlayer(initialX,initialY);
         updateMap.printCave();
@@ -424,6 +423,7 @@ public class Player{
         int [] coord = new int[2];
 
         System.out.println("Gettin shwifty, going to "+ tempX+", "+ tempY);
+        updateVisitedOnMap();
 
         coord[0]= tempX;
         coord[1]= tempY;
@@ -592,13 +592,13 @@ public class Player{
         if(startX == endX && startY == endY){
             return;
         }else{
-            if((startX-1) >= 0 && visited[startX-1][startY]){
+            if((startX-1) >= 0 && visited[startX-1][startY] && Math.abs(startX - endX ) > Math.abs((startX- 1) - endX) ){
                 getFromTo(startX - 1,startY,endX,endY);
-            }else if(startY-1 >= 0 && visited[startX][startY-1]){
+            }else if(startY-1 >= 0 && visited[startX][startY-1] && Math.abs(startY - endY ) > Math.abs((startY- 1) - endY)){
                 getFromTo(startX,startY - 1,endX,endY);
-            }else if(startY+1 < caveSize && visited[startX][startY+1]){
+            }else if(startY+1 < caveSize && visited[startX][startY+1] && Math.abs(startY - endY ) > Math.abs((startY + 1) - endY)){
                 getFromTo(startX,startY+1,endX,endY);
-            }else if(startX+1 < caveSize && visited[startX+1][startY]){
+            }else if(startX+1 < caveSize && visited[startX+1][startY] && Math.abs(startX - endX ) > Math.abs((startX + 1) - endY)){
                 getFromTo(startX+1,startY,endX,endY);
             }
         }
