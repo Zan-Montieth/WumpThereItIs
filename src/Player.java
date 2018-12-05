@@ -375,7 +375,7 @@ public class Player{
 
         for (int x = 0; x < caveSize; x++) {   // anything that could be a pit is a pit!!!! unless its not
             for (int y = 0; y < caveSize; y++) {
-                if (knowledgeOfBreeze[x][y]) {   //  squares that could be pits
+                if (knowledgeOfBreeze[x][y] || knowledgeOfStench[x][y]) {   //  squares that could be pits
                     if(x+1<caveSize && !safeSquares[x+1][y]) {
                         chanceOfPit[x + 1][y] +=1;
                     }
