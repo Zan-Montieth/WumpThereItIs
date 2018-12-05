@@ -176,18 +176,10 @@ public class Player{
 
         boolean[][] visitedBFS = new boolean[caveSize][caveSize];       // 2D boolean to track where search has been
 
-        int currX = startX;         // position trackers to construct map of path
-        int currY = startY;
-        int prevX = startX;
-        int prevY = startY;
-
         //while there are nodes we have not checked
         while (!unvisitedNodes.isEmpty()) {
             int[] currentposition = unvisitedNodes.poll();          // set current position based on top of queue
-            prevX = currX;
-            prevY = currY;
-            currX = currentposition[0];
-            currY = currentposition[1];
+
 
 
         }
@@ -195,6 +187,26 @@ public class Player{
         return null;
     }
 
+    private ArrayList<int[]> getAdjacentSpots(int x, int y) {
+        ArrayList<int[]> neighbors = new ArrayList<int[]>();
+        if (x < caveSize-1) {
+            int[] xyArray = {x+1,y};
+            neighbors.add( xyArray );
+        }
+        if (x > 0) {
+            int[] xyArray = {x-1,y};
+            neighbors.add( xyArray );
+        }
+        if (y < caveSize-1) {
+            int[] xyArray = {x,y+1};
+            neighbors.add( xyArray );
+        }
+        if (y > 0) {
+            int[] xyArray = {x,y-1};
+            neighbors.add( xyArray );
+        }
+        return neighbors;
+    }
 
     public void findGold(int x, int y){
         if(cave[x][y].isPit()){
