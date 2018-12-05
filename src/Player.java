@@ -166,13 +166,19 @@ public class Player{
                 "Exiting the cave.");
         updateMap.printCave();
 
-        // TODO: Implement BFS to return home after finding gold
+        getOut(startX,startY);
+        score += 1000;
+        System.out.println("You made it out with a score of: "+score);
+//        ArrayList<int[]> path = BFSpath(startX, startY, 0, 0);
+//        System.out.println("Have Path");
     }
 
     private ArrayList<int[]> BFSpath (int startX, int startY, int endX, int endY) {
         Queue<int[]> unvisitedNodes = new PriorityQueue<>();
         Map<int[], int[]> BFSpaths= new HashMap<>();
         int[] firstPoint = {endX,endY};
+        int[] originPoint = new int[2];
+
         unvisitedNodes.add(firstPoint);
 
         //while there are nodes we have not checked
@@ -180,17 +186,21 @@ public class Player{
             int[] currentPosition = unvisitedNodes.poll();          // set current position based on top of queue
             int x = currentPosition[0];
             int y = currentPosition[1];
+
+            if (x == startX && y == startY) {
+                originPoint = currentPosition;
+            }
             ArrayList<int[]> neighbors = getNeighbors(x,y);
 
             for (int[] coords : neighbors) {
                 if (safeSquares[x][y] && !BFSpaths.containsKey(coords)) {
                     BFSpaths.put(coords, currentPosition);
+                    unvisitedNodes.add(coords);
                 }
             }
 
         }
 
-        int[] originPoint = {startX,startY};
         ArrayList<int[]> fastestPath = findPathFromMap(firstPoint, originPoint, BFSpaths);
 
         return null;
@@ -471,7 +481,7 @@ public class Player{
         updateMap.setGold(x,y);
         updateMap.printCave();
         if(x == 0 && y == 0){
-            System.out.println(score);
+//            System.out.println(score);
         }else{
             updateMap.setPlayer(x,y);
             checkForVisited(x, y);
