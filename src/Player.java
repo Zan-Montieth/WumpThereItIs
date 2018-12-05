@@ -10,6 +10,7 @@ public class Player{
     private boolean[][] safeSquares;
     private boolean[][] visited;
     private double [][] chanceOfPit;
+    private int    [][][] coords;
     private boolean dead;
     private boolean foundGold;
     private int caveSize;
@@ -34,6 +35,7 @@ public class Player{
         knowledgeOfWumpus = new boolean[inCaveSize][inCaveSize];
         visited           = new boolean[inCaveSize][inCaveSize];
         safeSquares       = new boolean[inCaveSize][inCaveSize];
+        coords            = setInitialCoords();
         safeSquares[0][0] = true;                                   // The initial must be safe
         chanceOfPit       = setInitialChance();
         direction = 2;
@@ -51,6 +53,10 @@ public class Player{
             if(foundGold){
                 System.out.println("won a thing did a win");
                 break;
+            }
+            else {
+                updateMap.setPlayer(finalRecurX,finalRecurY);
+                score = finalRecurScore;
             }
             findWumpus();
             int[] coord = getShwifty();
@@ -151,6 +157,7 @@ public class Player{
         }
 
         // TODO: Implement logic for when it isn't safe to move, pick the best option
+
         return false;
     }
 
@@ -169,6 +176,7 @@ public class Player{
      * Provides cause of death, position of death, and score
      */
     private void agentDied(int x, int y) {
+        dead = true;
         boolean isPit = cave[x][y].isPit();
         boolean isWumpus = cave[x][y].isWumpus();
 
@@ -195,6 +203,7 @@ public class Player{
                 "Current score is "+score+". " +
                 "Exiting the cave.");
         updateMap.printCave();
+        foundGold = true;
 
         getOut(startX,startY);
         score += 1000;
@@ -223,6 +232,7 @@ public class Player{
             ArrayList<int[]> neighbors = getNeighbors(x,y);
 
             for (int[] coords : neighbors) {
+
                 if (safeSquares[x][y] && !BFSpaths.containsKey(coords)) {
                     BFSpaths.put(coords, currentPosition);
                     unvisitedNodes.add(coords);
@@ -642,6 +652,19 @@ public class Player{
         }
         return chance;
     }
+
+    private int[][][] setInitialCoords(){
+        int[][][] inCo = new int[caveSize][caveSize][2];
+
+        for (int x = 0; x < caveSize; x++) {
+            for (int y = 0; y < caveSize; y++) {
+                int[] inray = {x,y};
+                inCo[x][y] = inray;
+            }
+        }
+        return inCo;
+    }
+
 
     private void findWumpus(){
         for(int y = 0; y < caveSize; y++){
