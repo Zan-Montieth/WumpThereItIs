@@ -54,6 +54,10 @@ public class Player{
                 System.out.println("won a thing did a win");
                 break;
             }
+            else {
+                updateMap.setPlayer(finalRecurX,finalRecurY);
+                score = finalRecurScore;
+            }
             findWumpus();
             int[] coord = getShwifty();
             getFromTo(0,0,coord[0], coord[1]);
