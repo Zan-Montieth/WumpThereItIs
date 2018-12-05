@@ -139,6 +139,7 @@ public class Player{
      * Provides cause of death, position of death, and score
      */
     private void agentDied(int x, int y) {
+        dead = true;
         boolean isPit = cave[x][y].isPit();
         boolean isWumpus = cave[x][y].isWumpus();
 
