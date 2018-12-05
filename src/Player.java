@@ -68,6 +68,11 @@ public class Player{
             return false;           // player is dead, return false to exit recursive stack
         }
 
+        else if (cave[x][y].isGlitter()) {       // if you find the Glitter indicating gold
+            pickUpGold(x,y);        // method to return to cave entrance if gold is found, 2nd base case
+            return true;            // gold has been found, return true to exit the recursive stack
+        }
+
         else if (hasBreeze && hasStench) {      // if there is a breeze and a stench
             knowledgeOfBreeze[x][y] = true;
             knowledgeOfStench[x][y] = true;
@@ -79,11 +84,6 @@ public class Player{
 
         else if (hasStench) {
             knowledgeOfStench[x][y] = true;
-        }
-
-        else if (cave[x][y].isGlitter()) {       // if you find the Glitter indicating gold
-            pickUpGold(x,y);        // method to return to cave entrance if gold is found, 2nd base case
-            return true;            // gold has been found, return true to exit the recursive stack
         }
 
         else {                      // if there is nothing of note
@@ -171,16 +171,22 @@ public class Player{
 
     private ArrayList<int[]> BFSpath (int startX, int startY, int endX, int endY) {
         Queue<int[]> unvisitedNodes = new PriorityQueue<>();
+        Map<int[], int[]> BFSpaths= new HashMap<>();
         int[] firstPoint = {startX,startY};
         unvisitedNodes.add(firstPoint);
 
-        boolean[][] visitedBFS = new boolean[caveSize][caveSize];       // 2D boolean to track where search has been
-
         //while there are nodes we have not checked
         while (!unvisitedNodes.isEmpty()) {
-            int[] currentposition = unvisitedNodes.poll();          // set current position based on top of queue
+            int[] currentPosition = unvisitedNodes.poll();          // set current position based on top of queue
+            int x = currentPosition[0];
+            int y = currentPosition[1];
+            ArrayList<int[]> neighbors = getNeighbors(x,y);
 
-
+            for (int[] coords : neighbors) {
+                if (!BFSpaths.containsKey(coords)) {
+                    BFSpaths.put(coords, currentPosition);
+                }
+            }
 
         }
 
