@@ -209,10 +209,9 @@ public class Cave {
                 }else if(visited[x][y]){
                     System.out.print(" Visited       |");
                 }
-                else if{
+                else {
+                    System.out.print("               |");
                 }
-                System.out.print("               |");
-
             }
             System.out.println();
 
