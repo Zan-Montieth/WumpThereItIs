@@ -1,5 +1,5 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public class Player{
 
@@ -7,21 +7,22 @@ public class Player{
     private boolean[][] knowledgeOfStench;
     private boolean[][] knowledgeOfPits;
     private boolean[][] knowledgeOfWumpus;
-    private boolean[][] fullyExploredCells;
-    private boolean[][] knowledgeOfSafe;
+    private boolean[][] safeSquares;
     private boolean[][] visited;
     private double [][] chanceOfPit;
     private boolean dead;
-    private boolean foundGold = false;
+    private boolean foundGold;
     private int caveSize;
     private Node[][]cave;
-    private boolean scream = false; // if the wumpus has been shot
-    private int score = 0;
+    private boolean scream; // if the wumpus has been shot
+    private int score;
     private Cave updateMap;
     private int direction;                      //  0 up      1 right     2 down      3 left
     private List<int[]> xyPath = new ArrayList<>();
     private int numCellsVisited = -1;
-
+    private int finalRecurX;
+    private int finalRecurY;
+    private int finalRecurScore;
 
     Player(int inCaveSize, Node inCave[][], Cave inUpdateMap){
         caveSize = inCaveSize;
@@ -31,15 +32,195 @@ public class Player{
         knowledgeOfPits   = new boolean[inCaveSize][inCaveSize];
         knowledgeOfStench = new boolean[inCaveSize][inCaveSize];
         knowledgeOfWumpus = new boolean[inCaveSize][inCaveSize];
-        knowledgeOfSafe   = new boolean[inCaveSize][inCaveSize];
         visited           = new boolean[inCaveSize][inCaveSize];
+        safeSquares       = new boolean[inCaveSize][inCaveSize];
+        safeSquares[0][0] = true;                                   // The initial must be safe
         chanceOfPit       = setInitialChance();
         direction = 2;
+        score = 1;                                      // score = 1, so it is set to 0 when the recursive search begins
         updateMap.setPlayer(0,0);
         visited[0][0] = true;
     }
 
-    public void findGoldSafely(int x, int y){
+    /* Recursive method to explore every safe square accessible from the initial square
+     * If you find the gold, it will exit and call return to start via pathBFS
+     * If you find an unsafe square, i.e. there is a breeze or stench, it will update the KB and move back
+     * Returns true if gold has been found, else returns false if it has not
+     */
+    public boolean recursiveSafeSearch(int initialX, int initialY) {
+
+        updateMap.setPlayer(initialX,initialY);
+        updateMap.printCave();
+        int x = initialX;
+        int y = initialY;
+        boolean hasBreeze = cave[x][y].isBreeze();
+        boolean hasStench = cave[x][y].isStench();
+
+        finalRecurX = x;
+        finalRecurY = y;
+        finalRecurScore = score;
+
+        visited[x][y] = true;       // set the current square to having been visited.
+        score -= 1;                 // reduce score by 1 because you made 1 move for each call to this method
+
+        if (cave[x][y].isPit() || cave[x][y].isWumpus()) {      // if this position is a pit or a wumpus
+            agentDied(x,y);         // method to update that a person died, 1st base case of recursive call
+            return false;           // player is dead, return false to exit recursive stack
+        }
+
+        else if (cave[x][y].isGlitter()) {       // if you find the Glitter indicating gold
+            pickUpGold(x,y);        // method to return to cave entrance if gold is found, 2nd base case
+            return true;            // gold has been found, return true to exit the recursive stack
+        }
+
+        else if (hasBreeze && hasStench) {      // if there is a breeze and a stench
+            knowledgeOfBreeze[x][y] = true;
+            knowledgeOfStench[x][y] = true;
+        }
+
+        else if (hasBreeze) {
+            knowledgeOfBreeze[x][y] = true;
+        }
+
+        else if (hasStench) {
+            knowledgeOfStench[x][y] = true;
+        }
+
+        else {                      // if there is nothing of note
+            setSafeNeighbors(x,y);
+        }
+
+            // if next index exists, hasn't been visited, and is safe
+        if ( y < caveSize -1 && !visited[x][y+1] && safeSquares[x][y+1]) {
+            boolean solved = recursiveSafeSearch(x, y + 1);
+            if (solved) return true;
+            updateMap.setPlayer(x,y);
+            updateMap.printCave();
+            score -= 1;
+        }
+
+        if ( x < caveSize -1 && !visited[x+1][y] && safeSquares[x+1][y]) {
+            boolean solved = recursiveSafeSearch(x + 1, y);
+            if (solved) return true;
+            updateMap.setPlayer(x,y);
+            updateMap.printCave();
+            score -= 1;
+        }
+
+        if ( y > 0           && !visited[x][y-1] && safeSquares[x][y-1]) {
+            boolean solved = recursiveSafeSearch(x, y - 1);
+            if (solved) return true;
+            updateMap.setPlayer(x,y);
+            updateMap.printCave();
+            score -= 1;
+        }
+
+        if ( x > 0           && !visited[x-1][y] && safeSquares[x-1][y]) {
+            boolean solved = recursiveSafeSearch(x - 1, y);
+            if (solved) return true;
+            updateMap.setPlayer(x,y);
+            updateMap.printCave();
+            score -= 1;
+        }
+
+        // TODO: Implement logic for when it isn't safe to move, pick the best option
+
+        return false;
+    }
+
+    private void setSafeNeighbors(int x, int y) {
+        if (x > 0)          safeSquares[x-1][y] = true;
+        if (x < caveSize-1) safeSquares[x+1][y] = true;
+        if (y > 0)          safeSquares[x][y-1] = true;
+        if (y < caveSize-1) safeSquares[x][y+1] = true;
+    }
+
+    /* Method to print out death message
+     * Provides cause of death, position of death, and score
+     */
+    private void agentDied(int x, int y) {
+        boolean isPit = cave[x][y].isPit();
+        boolean isWumpus = cave[x][y].isWumpus();
+
+        if (isPit && isWumpus) { // if there is a wumpus and a pit where the agent died
+            System.out.println("Agent died by falling in a pit then getting eaten by" +
+                    "the Wumpus at position " + x + "," + y + ".");
+        }
+        else if (isPit) { // if there is just a pit where the agent died
+            System.out.println("Agent died by falling in a pit at position " + x + "," + y + ".");
+        }
+        else if (isWumpus) { // if there is just a wumpus where the agent died
+            System.out.println("Agent got killed by the Wumpus at position " + x + "," + y + ".");
+        }
+        else {  // if the agent is dead at position x,y but the position has neither a wumpus nor a pit
+            System.out.println("Agent died of stupid at position " + x + "," + y + ". You shouldn't be " +
+                    "able to reach this state.");
+        }
+
+        System.out.println("Your score was "+ score + ". Better luck next time!"); // give score
+    }
+
+    private void pickUpGold(int startX, int startY) {
+        System.out.println("Found Gold in position " + startX + "," + startY + ". " +
+                "Current score is "+score+". " +
+                "Exiting the cave.");
+        updateMap.printCave();
+
+        // TODO: Implement BFS to return home after finding gold
+    }
+
+    private ArrayList<int[]> BFSpath (int startX, int startY, int endX, int endY) {
+        Queue<int[]> unvisitedNodes = new PriorityQueue<>();
+        Map<int[], int[]> BFSpaths= new HashMap<>();
+        int[] firstPoint = {startX,startY};
+        unvisitedNodes.add(firstPoint);
+
+        //while there are nodes we have not checked
+        while (!unvisitedNodes.isEmpty()) {
+            int[] currentPosition = unvisitedNodes.poll();          // set current position based on top of queue
+            int x = currentPosition[0];
+            int y = currentPosition[1];
+            ArrayList<int[]> neighbors = getNeighbors(x,y);
+
+            for (int[] coords : neighbors) {
+                if (!BFSpaths.containsKey(coords)) {
+                    BFSpaths.put(coords, currentPosition);
+                }
+            }
+
+        }
+
+        return null;
+    }
+
+    /* Method to get all neighbors around a point
+     * returns an arraylist of 2 integers, (x,y) for each neighbor
+     */
+    private ArrayList<int[]> getNeighbors(int x, int y) {
+        ArrayList<int[]> neighbors = new ArrayList<int[]>();
+        if (x < caveSize-1) {
+            int[] xyArray = {x+1,y};
+            neighbors.add( xyArray );
+        }
+        if (x > 0) {
+            int[] xyArray = {x-1,y};
+            neighbors.add( xyArray );
+        }
+        if (y < caveSize-1) {
+            int[] xyArray = {x,y+1};
+            neighbors.add( xyArray );
+        }
+        if (y > 0) {
+            int[] xyArray = {x,y-1};
+            neighbors.add( xyArray );
+        }
+        return neighbors;
+    }
+
+    public void findGold(int x, int y){
+        if(cave[x][y].isPit()){
+            System.out.println("you died");
+        }
         if(cave[x][y].isGlitter()){
             foundGold = true;
             score += 1000;
@@ -48,93 +229,66 @@ public class Player{
             getOut(x,y);
             return;
         }
-        if(cave[x][y].isPit()){
-            System.out.println("you died");
-            return;
-        }
-        if(!cave[x][y].isBreeze() && !foundGold) { setNoPit(x,y); } // if there isn't a breeze, we know that adjacent squares are not pits
-        if(cave[x][y].isBreeze()){knowledgeOfBreeze[x][y] = true;}
-        if(cave[x][y].isStench()){knowledgeOfStench[x][y] = true;}
         int[] coords = {x,y};
         xyPath.add(coords);
         numCellsVisited++;
         updateMap.setPlayer(x,y);
         visited[x][y] = true;
         updateMap.printCave();
-        if(!cave[x][y].isStench() && !cave[x][y].isBreeze() && !haveVisited(x,y)){
-            //TODO set all adjacent to safe
-            direction = 0;
+        if(!cave[x][y].isBreeze()) { setNoPit(x,y); } // if there isn't a breeze, we know that adjacent squares are not pits
+        if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && canMove(x, y) && !foundGold){
+            moveIn(x,y);
+        }else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold && !fullyExplored(x,y)){
+            turnLeft();
             if(canMove(x,y)) {
                 moveIn(x, y);
             }else{
-                direction = 1;
-                if(canMove(x,y)){
-                    moveIn(x,y);
-                }
+                findGold(x,y);
+            }
+        }else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold && fullyExplored(x,y)){
+            if(direction == 2 && canMove(x,y)){
+                moveIn(x,y);
+            }else if(direction == 1 && canMove(x,y)){
+                moveIn(x,y);
+            }else if(direction == 3 && canMove(x,y)){
+                moveIn(x,y);
+            }else if(direction == 0 && canMove(x,y)){
+                moveIn(x,y);
             }
         }
-//        if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && canMove(x, y) && !foundGold){
-//            moveIn(x,y);
-//        }else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold && !fullyExplored(x,y)) {
-//            turnLeft();
-//            if (canMove(x, y)) {
-//                moveIn(x, y);
-//            } else {
-//                findGoldSafely(x, y);
-//            }
-//        }
-//        else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && !haveVisited(x,y) && !canMove(x, y) && !foundGold && fullyExplored(x,y)){
-//            if(direction == 2 && canMove(x,y)){
-//                moveIn(x,y);
-//            }else if(direction == 1 && canMove(x,y)){
-//                moveIn(x,y);
-//            }else if(direction == 3 && canMove(x,y)){
-//                moveIn(x,y);
-//            }else if(direction == 0 && canMove(x,y)){
-//                moveIn(x,y);
-//            }
-//        }
-//        else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && haveVisited(x,y) && fullyExplored(x,y) && !foundGold){
-//            if(!fullyExplored(x,y)) {
-//                turnLeft();
-//                if (canMove(x, y)) {
-//                    findGoldSafely(x, y);
-//                } else {
-//                    turnLeft();
-//                }
-//                if (canMove(x, y)) {
-//                    findGoldSafely(x, y);
-//                } else {
-//                    turnLeft();
-//                }
-//                if (canMove(x, y)) {
-//                    findGoldSafely(x, y);
-//                } else {
-//                    System.out.println("help im entirely stuck");
-//                }
-//            }else{
-//                direction = 0;
-//                if(canMove(x,y)){
-//                    findGoldSafely(x, y-1);
-//                }
-//
-//            }
-//        }
-//        else if(!cave[x][y].isBreeze() && cave[x][y].isStench() && !foundGold){  // if stench, shoot arrow to the left (?)
-//            turnLeft();
-//            scream = shootArrow(x, y);
-//            updateMap.printCave();
-//            if(canMove(x,y)) {
-//                moveIn(x, y);
-//            }
-//        }
-//        else if(cave[x][y].isBreeze() && !foundGold){
-//            xyPath.remove(numCellsVisited);
-//            numCellsVisited--;
-//            int[] prevXY = xyPath.get(numCellsVisited);
-//            findGoldSafely(prevXY[0],prevXY[1]);
-//            knowledgeOfBreeze[x][y]=true;
-//        }
+        else if(!cave[x][y].isBreeze() && !cave[x][y].isStench() && haveVisited(x,y) && !foundGold){
+            turnLeft();
+            if(canMove(x,y)) {
+                findGold(x, y);
+            }else{
+                turnLeft();
+            }
+            if(canMove(x,y)) {
+                findGold(x, y);
+            }else{
+                turnLeft();
+            }
+            if(canMove(x,y)) {
+                findGold(x, y);
+            }else{
+                System.out.println("help im entirely stuck");
+            }
+        }
+        else if(!cave[x][y].isBreeze() && cave[x][y].isStench() && !foundGold){  // if stench, shoot arrow to the left (?)
+            turnLeft();
+            scream = shootArrow(x, y);
+            updateMap.printCave();
+            if(canMove(x,y)) {
+                moveIn(x, y);
+            }
+        }
+        else if(cave[x][y].isBreeze() && !cave[x][y].isStench() && !foundGold){
+            xyPath.remove(numCellsVisited);
+            numCellsVisited--;
+            int[] prevXY = xyPath.get(numCellsVisited);
+            findGold(prevXY[0],prevXY[1]);
+            knowledgeOfBreeze[x][y]=true;
+        }
 
 
         //TODO handle breeze
@@ -145,6 +299,7 @@ public class Player{
         //xyPath holds the xy coordinates of all visited locations on the way to the gold as a list of 2 dimensional arrays, x index 0 and y index 1
         //haveVisited checks if we have visited the next cell
     }
+
     /* Sets all squared adjacent to square x,y to have no chance of being pits
      * called when there is no breeze in a square
      */
@@ -258,13 +413,13 @@ public class Player{
     private void moveIn(int x, int y){
         score = score - 1;
         if(direction == 0){
-            findGoldSafely(x, (y - 1));
+            findGold(x, (y - 1));
         }else if(direction == 1){
-            findGoldSafely((x + 1), y);
+            findGold((x + 1), y);
         }else if(direction == 2){
-            findGoldSafely(x, (y + 1));
+            findGold(x, (y + 1));
         }else if(direction == 3){
-            findGoldSafely((x - 1), y);
+            findGold((x - 1), y);
         }
     }
 
@@ -275,7 +430,6 @@ public class Player{
         else if(direction == 2) getOut(x, (y + 1));
         else if(direction == 3) getOut((x - 1), y);
     }
-
 
     private void turnLeft(){
         if(direction == 0){
