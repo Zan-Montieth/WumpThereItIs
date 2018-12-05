@@ -42,6 +42,30 @@ public class Player{
         visited[0][0] = true;
     }
 
+
+    public void search(int initialX, int initialY){
+
+        while(!dead ){
+
+            recursiveSafeSearch(initialX,initialY);
+            if(foundGold){
+                System.out.println("won a thing did a win");
+                break;
+            }
+            int[] coord = getShwifty();
+
+            dead = true;
+
+
+        }
+
+
+
+    }
+
+
+
+
     /* Recursive method to explore every safe square accessible from the initial square
      * If you find the gold, it will exit and call return to start via pathBFS
      * If you find an unsafe square, i.e. there is a breeze or stench, it will update the KB and move back
@@ -388,6 +412,8 @@ public class Player{
         }
         int [] coord = new int[2];
 
+        System.out.println("Gettin shwifty, going to "+ tempX+", "+ tempY);
+
         coord[0]= tempX;
         coord[1]= tempY;
         return coord;
@@ -430,6 +456,7 @@ public class Player{
             int[] xyArray = {x,y-1};
             potentialPits.add( xyArray );
         }
+
         return potentialPits;
     }
 

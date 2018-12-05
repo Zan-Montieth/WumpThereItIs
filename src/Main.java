@@ -52,7 +52,7 @@ public class Main {
 
                 Cave myCave = new Cave(dim);
                 Player myPlayer = new Player(dim, myCave.getNodeCave(), myCave);
-                myPlayer.recursiveSafeSearch(0, 0);
+                myPlayer.search(0, 0);
 
                 System.out.print("Enter the desired size of Wumpus world, or -1 to exit: ");
                 System.out.println();
