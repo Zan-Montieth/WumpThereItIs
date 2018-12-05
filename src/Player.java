@@ -313,6 +313,66 @@ public class Player{
     /* Method for checking all squares on the map to find potential of pits on any square adjacent to a known breeze
      * TODO: logic for places where pit chance is weighted by other breezes i.e. there are multiple configurations for breeze pit setups in an area
      */
+
+
+    // calculates the least risky place to explore given current knowledge
+    // takes in current position and then moves player to the least Shwifty spot, if player does not die and
+    // current position is not a breeze or stench returns to that other method thing
+
+    private int[] getShwifty(){
+
+        // avoid stench
+
+        chanceOfPit =setInitialChance(); // zero out
+
+        for (int x = 0; x < caveSize; x++) {   // anything that could be a pit is a pit!!!! unless its not
+            for (int y = 0; y < caveSize; y++) {
+                if (knowledgeOfBreeze[x][y]) {   //  squares that could be pits
+                    if(x+1<caveSize && safeSquares[x+1][y]) {
+                        chanceOfPit[x + 1][y] +=1;
+                    }
+                    if(x-1>0 && safeSquares[x-1][y]) {
+                        chanceOfPit[x - 1][y] +=1;
+                    }
+                    if(y+1<caveSize&& safeSquares[x][y+1]) {
+                        chanceOfPit[x][y+1] +=1;
+                    }
+                    if(y-1>0&& safeSquares[x][y-1]) {
+                        chanceOfPit[x][y-1] +=1;
+                    }
+                }
+            }
+        }
+
+
+        int tempX = -1; // going to be our least deathy spot
+        int tempY = -1;
+
+        for (int i = 0; i < caveSize; i++) {   // find the min point that isnt 0
+            for (int j = 0; j < caveSize; j++) {
+                if(chanceOfPit[i][j]>0){
+                    if(tempX==-1){ // first case set to
+                        tempX=i;
+                        tempY=j;
+                    }
+                    else if(chanceOfPit[i][j] < chanceOfPit[tempX][tempY]){
+                        tempX=i;
+                        tempY=j;
+                    }
+                }
+            }
+        }
+        int [] coord = new int[2];
+
+        coord[0]= tempX;
+        coord[1]= tempY;
+        return coord;
+    }
+
+
+
+
+
     private void calculatePitOdds() {
 
         for (int x = 0; x < caveSize; x++) {
@@ -491,7 +551,7 @@ public class Player{
         double[][] chance = new double[caveSize][caveSize];
         for (int x = 0; x < caveSize; x++) {
             for (int y = 0; y < caveSize; y++) {
-                chance[x][y] = -1;
+                chance[x][y] = 0;
             }
         }
         return chance;
