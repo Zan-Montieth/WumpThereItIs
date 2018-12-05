@@ -10,10 +10,12 @@ public class Cave {
     private int goldPrevY;
     private int wumpX;
     private int wumpY;
+    private boolean[][] visited;
 
     public Cave(int inSize){
         caveSize = inSize;
         cave = new Node[caveSize][caveSize];
+        visited = new boolean[caveSize][caveSize];
         for(int y = 0; y < caveSize; y++){
             for(int x = 0; x < caveSize; x++){
                 Node temp = new Node(x,y);
@@ -91,9 +93,7 @@ public class Cave {
         playerPrevY = inY;
     }
 
-    public void setVisited(int x, int y){
-        cave[x][y].setVisited();
-    }
+
 
     public void setGold(int x, int y){
         cave[goldPrevX][goldPrevY].removeGold();
@@ -205,10 +205,11 @@ public class Cave {
             for(int x = 0; x < caveSize; x++){
                 if(cave[x][y].isPlayer()) {
                     System.out.print(" Player        |");
-                }else if(cave[x][y].isVisited()){
+                    visited[x][y] = true;
+                }else if(visited[x][y]){
                     System.out.print(" Visited       |");
                 }
-                else {
+                else if{
                 }
                 System.out.print("               |");
 

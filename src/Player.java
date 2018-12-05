@@ -55,6 +55,7 @@ public class Player{
             findWumpus();
             int[] coord = getShwifty();
             getFromTo(0,0,coord[0], coord[1]);
+            updateMap.printCave();
             dead = true;
 
 
@@ -154,13 +155,7 @@ public class Player{
     }
 
     private void updateVisitedOnMap(){
-        for(int y = 0; y < caveSize; y++){
-            for(int x = 0; x < caveSize; x++){
-                if(visited[x][y]){
-                    updateMap.setVisited(x,y);
-                }
-            }
-        }
+
     }
 
     private void setSafeNeighbors(int x, int y) {
@@ -701,7 +696,6 @@ public class Player{
                     direction = 1;
                     getFromTo(0,0,x,y);
                     shootArrow(x,y);
-
                 }
             }
         }
