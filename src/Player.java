@@ -63,7 +63,7 @@ public class Player{
             int[] coord = getShwifty();
             getFromTo(finalRecurX,finalRecurY,coord[0], coord[1]);
             updateMap.printCave();
-            dead = true;
+            //dead = true;
 
 
         }
@@ -493,6 +493,7 @@ public class Player{
         if(direction == 0){
             for(int v = y; v >=0; v--){
                 if(cave[x][v].isWumpus()){
+                    knowledgeOfWumpus[x][v]= false;
                     updateMap.killWumpus();
                     getFromTo(x,y,x,y - 1);
                     return true;
@@ -501,6 +502,7 @@ public class Player{
         }else if(direction == 1){
             for(int h = x; h < caveSize; h++){
                 if(cave[h][y].isWumpus()){
+                    knowledgeOfWumpus[h][y]= false;
                     updateMap.killWumpus();
                     getFromTo(x,y,x+1,y);
                     return true;
@@ -509,6 +511,7 @@ public class Player{
         }else if(direction == 2){
             for(int v = y; v < caveSize; v++){
                 if(cave[x][v].isWumpus()){
+                    knowledgeOfWumpus[x][v]= false;
                     updateMap.killWumpus();
                     getFromTo(x,y,x,y+1);
                     return true;
@@ -517,6 +520,7 @@ public class Player{
         }else if(direction == 3){
             for(int h = x; h >= 0; h--){
                 if(cave[h][y].isWumpus()){
+                    knowledgeOfWumpus[h][y]= false;
                     updateMap.killWumpus();
                     getFromTo(x,y,x-1,y);
                     return true;
