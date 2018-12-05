@@ -172,7 +172,7 @@ public class Player{
     private ArrayList<int[]> BFSpath (int startX, int startY, int endX, int endY) {
         Queue<int[]> unvisitedNodes = new PriorityQueue<>();
         Map<int[], int[]> BFSpaths= new HashMap<>();
-        int[] firstPoint = {startX,startY};
+        int[] firstPoint = {endX,endY};
         unvisitedNodes.add(firstPoint);
 
         //while there are nodes we have not checked
@@ -183,14 +183,28 @@ public class Player{
             ArrayList<int[]> neighbors = getNeighbors(x,y);
 
             for (int[] coords : neighbors) {
-                if (!BFSpaths.containsKey(coords)) {
+                if (safeSquares[x][y] && !BFSpaths.containsKey(coords)) {
                     BFSpaths.put(coords, currentPosition);
                 }
             }
 
         }
 
+        int[] originPoint = {startX,startY};
+        ArrayList<int[]> fastestPath = findPathFromMap(firstPoint, originPoint, BFSpaths);
+
         return null;
+    }
+
+    private ArrayList<int[]> findPathFromMap(int[] to, int[] from, Map<int[], int[]> BFSpaths) {
+        ArrayList<int[]> fastestPath = new ArrayList<>();
+        int[] current = BFSpaths.get(from);
+        fastestPath.add(current);
+        while ( !(current[0] == to[0] && current[1] == to[1]) ) {
+            current = BFSpaths.get(current);
+            fastestPath.add(current);
+        }
+        return fastestPath;
     }
 
     /* Method to get all neighbors around a point
