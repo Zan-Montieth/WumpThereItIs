@@ -187,7 +187,7 @@ public class Player{
         return null;
     }
 
-    private ArrayList<int[]> getAdjacentSpots(int x, int y) {
+    private ArrayList<int[]> getNeighbors(int x, int y) {
         ArrayList<int[]> neighbors = new ArrayList<int[]>();
         if (x < caveSize-1) {
             int[] xyArray = {x+1,y};
