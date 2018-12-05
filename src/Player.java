@@ -477,6 +477,7 @@ public class Player{
             for(int v = y; v >=0; v--){
                 if(cave[x][v].isWumpus()){
                     updateMap.killWumpus();
+                    getFromTo(x,y,x,y - 1);
                     return true;
                 }
             }
@@ -484,6 +485,7 @@ public class Player{
             for(int h = x; h < caveSize; h++){
                 if(cave[h][y].isWumpus()){
                     updateMap.killWumpus();
+                    getFromTo(x,y,x+1,y);
                     return true;
                 }
             }
@@ -491,6 +493,7 @@ public class Player{
             for(int v = y; v < caveSize; v++){
                 if(cave[x][v].isWumpus()){
                     updateMap.killWumpus();
+                    getFromTo(x,y,x,y+1);
                     return true;
                 }
             }
@@ -498,6 +501,7 @@ public class Player{
             for(int h = x; h >= 0; h--){
                 if(cave[h][y].isWumpus()){
                     updateMap.killWumpus();
+                    getFromTo(x,y,x-1,y);
                     return true;
                 }
             }
@@ -643,14 +647,21 @@ public class Player{
         for(int y = 0; y < caveSize; y++){
             for(int x =  0; x < caveSize; x++){
                 if(knowledgeOfStench[x][y]){
+                    getFromTo(0,0,x,y);
                     if(x - 1 >= 0 && y - 1 >= 0 && knowledgeOfStench[x - 1][y - 1]){
                         if(!visited[x][y-1]){
                             //TODO Kill the wumpus at x, y - 1
+                            direction = 0;
+                            shootArrow(x,y);
+                            getFromTo(x,y,x,y-1);
                             System.out.println("wumpus is at x = " + x + "  y = " + (y -1));
                             knowledgeOfWumpus[x][y-1] = true;
                             return;
                         }else if(!visited[x-1][y]) {
                             //TODO Kill the wumpus at x - 1, y
+                            direction = 3;
+                            shootArrow(x,y);
+                            getFromTo(x,y,x-1,y);
                             System.out.println("wumpus is at x = " + (x - 1) + "  y = " + (y));
                             knowledgeOfWumpus[x-1][y] = true;
                             return;
@@ -659,11 +670,17 @@ public class Player{
                     if(x + 1 < caveSize && y - 1 >= 0 && knowledgeOfStench[x + 1][y - 1]){
                         if(!visited[x][y-1]){
                             //TODO Kill the wumpus at x, y - 1
+                            direction = 0;
+                            shootArrow(x,y);
+                            getFromTo(x,y,x,y-1);
                             System.out.println("wumpus is at x = " + (x) + "  y = " + (y - 1));
                             knowledgeOfWumpus[x][y-1] = true;
                             return;
                         }else if(!visited[x + 1][y]) {
                             //TODO Kill the wumpus at x + 1, y
+                            direction = 1;
+                            shootArrow(x,y);
+                            getFromTo(x,y,x+1,y);
                             System.out.println("wumpus is at x = " + (x + 1) + "  y = " + (y));
                             knowledgeOfWumpus[x+1][y] = true;
                             return;
@@ -672,11 +689,17 @@ public class Player{
                     if(x - 1 >= 0 && y + 1 < caveSize && knowledgeOfStench[x - 1][y + 1]){
                         if(!visited[x][y+1]){
                             //TODO Kill the wumpus at x, y + 1
+                            direction = 2;
+                            shootArrow(x,y);
+                            getFromTo(x,y,x,y+1);
                             System.out.println("wumpus is at x = " + (x) + "  y = " + (y + 1));
                             knowledgeOfWumpus[x][y+1] = true;
                             return;
                         }else if(!visited[x-1][y]) {
                             //TODO Kill the wumpus at x - 1, y
+                            direction = 3;
+                            shootArrow(x,y);
+                            getFromTo(x,y,x-1,y);
                             System.out.println("wumpus is at x = " + (x - 1) + "  y = " + (y));
                             knowledgeOfWumpus[x-1][y] = true;
                             return;
@@ -685,19 +708,26 @@ public class Player{
                     if(x + 1 < caveSize && y + 1 < caveSize && knowledgeOfStench[x + 1][y + 1]){
                         if(!visited[x][y+1]){
                             //TODO Kill the wumpus at x, y + 1
+                            direction = 2;
+                            shootArrow(x,y);
+                            getFromTo(x,y,x,y+1);
                             System.out.println("wumpus is at x = " + (x) + "  y = " + (y + 1));
                             knowledgeOfWumpus[x][y+1] = true;
                             return;
                         }else if(!visited[x+1][y]) {
                             //TODO Kill the wumpus at x + 1, y
+                            direction = 1;
+                            shootArrow(x,y);
+                            getFromTo(x,y,x,y-1);
                             System.out.println("wumpus is at x = " + (x + 1) + "  y = " + (y));
                             knowledgeOfWumpus[x+1][y] = true;
                             return;
                         }
                     }
                     direction = 1;
-                    getFromTo(0,0,x,y);
+
                     shootArrow(x,y);
+                    getFromTo(0,0,1,0);
                 }
             }
         }
