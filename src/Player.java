@@ -167,13 +167,19 @@ public class Player{
                 "Exiting the cave.");
         updateMap.printCave();
 
-        // TODO: Implement BFS to return home after finding gold
+        getOut(startX,startY);
+        score += 1000;
+        System.out.println("You made it out with a score of: "+score);
+//        ArrayList<int[]> path = BFSpath(startX, startY, 0, 0);
+//        System.out.println("Have Path");
     }
 
     private ArrayList<int[]> BFSpath (int startX, int startY, int endX, int endY) {
         Queue<int[]> unvisitedNodes = new PriorityQueue<>();
         Map<int[], int[]> BFSpaths= new HashMap<>();
-        int[] firstPoint = {startX,startY};
+        int[] firstPoint = {endX,endY};
+        int[] originPoint = new int[2];
+
         unvisitedNodes.add(firstPoint);
 
         //while there are nodes we have not checked
@@ -181,17 +187,35 @@ public class Player{
             int[] currentPosition = unvisitedNodes.poll();          // set current position based on top of queue
             int x = currentPosition[0];
             int y = currentPosition[1];
+
+            if (x == startX && y == startY) {
+                originPoint = currentPosition;
+            }
             ArrayList<int[]> neighbors = getNeighbors(x,y);
 
             for (int[] coords : neighbors) {
-                if (!BFSpaths.containsKey(coords)) {
+                if (safeSquares[x][y] && !BFSpaths.containsKey(coords)) {
                     BFSpaths.put(coords, currentPosition);
+                    unvisitedNodes.add(coords);
                 }
             }
 
         }
 
+        ArrayList<int[]> fastestPath = findPathFromMap(firstPoint, originPoint, BFSpaths);
+
         return null;
+    }
+
+    private ArrayList<int[]> findPathFromMap(int[] to, int[] from, Map<int[], int[]> BFSpaths) {
+        ArrayList<int[]> fastestPath = new ArrayList<>();
+        int[] current = BFSpaths.get(from);
+        fastestPath.add(current);
+        while ( !(current[0] == to[0] && current[1] == to[1]) ) {
+            current = BFSpaths.get(current);
+            fastestPath.add(current);
+        }
+        return fastestPath;
     }
 
     /* Method to get all neighbors around a point
@@ -314,6 +338,66 @@ public class Player{
     /* Method for checking all squares on the map to find potential of pits on any square adjacent to a known breeze
      * TODO: logic for places where pit chance is weighted by other breezes i.e. there are multiple configurations for breeze pit setups in an area
      */
+
+
+    // calculates the least risky place to explore given current knowledge
+    // takes in current position and then moves player to the least Shwifty spot, if player does not die and
+    // current position is not a breeze or stench returns to that other method thing
+
+    private int[] getShwifty(){
+
+        // avoid stench
+
+        chanceOfPit =setInitialChance(); // zero out
+
+        for (int x = 0; x < caveSize; x++) {   // anything that could be a pit is a pit!!!! unless its not
+            for (int y = 0; y < caveSize; y++) {
+                if (knowledgeOfBreeze[x][y]) {   //  squares that could be pits
+                    if(x+1<caveSize && safeSquares[x+1][y]) {
+                        chanceOfPit[x + 1][y] +=1;
+                    }
+                    if(x-1>0 && safeSquares[x-1][y]) {
+                        chanceOfPit[x - 1][y] +=1;
+                    }
+                    if(y+1<caveSize&& safeSquares[x][y+1]) {
+                        chanceOfPit[x][y+1] +=1;
+                    }
+                    if(y-1>0&& safeSquares[x][y-1]) {
+                        chanceOfPit[x][y-1] +=1;
+                    }
+                }
+            }
+        }
+
+
+        int tempX = -1; // going to be our least deathy spot
+        int tempY = -1;
+
+        for (int i = 0; i < caveSize; i++) {   // find the min point that isnt 0
+            for (int j = 0; j < caveSize; j++) {
+                if(chanceOfPit[i][j]>0){
+                    if(tempX==-1){ // first case set to
+                        tempX=i;
+                        tempY=j;
+                    }
+                    else if(chanceOfPit[i][j] < chanceOfPit[tempX][tempY]){
+                        tempX=i;
+                        tempY=j;
+                    }
+                }
+            }
+        }
+        int [] coord = new int[2];
+
+        coord[0]= tempX;
+        coord[1]= tempY;
+        return coord;
+    }
+
+
+
+
+
     private void calculatePitOdds() {
 
         for (int x = 0; x < caveSize; x++) {
@@ -458,7 +542,7 @@ public class Player{
         updateMap.setGold(x,y);
         updateMap.printCave();
         if(x == 0 && y == 0){
-            System.out.println(score);
+//            System.out.println(score);
         }else{
             updateMap.setPlayer(x,y);
             checkForVisited(x, y);
@@ -492,7 +576,7 @@ public class Player{
         double[][] chance = new double[caveSize][caveSize];
         for (int x = 0; x < caveSize; x++) {
             for (int y = 0; y < caveSize; y++) {
-                chance[x][y] = -1;
+                chance[x][y] = 0;
             }
         }
         return chance;
