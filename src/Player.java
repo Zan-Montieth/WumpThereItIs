@@ -1,6 +1,5 @@
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Player{
 
@@ -169,6 +168,33 @@ public class Player{
 
         // TODO: Implement BFS to return home after finding gold
     }
+
+    private ArrayList<int[]> BFSpath (int startX, int startY, int endX, int endY) {
+        Queue<int[]> unvisitedNodes = new PriorityQueue<>();
+        int[] firstPoint = {startX,startY};
+        unvisitedNodes.add(firstPoint);
+
+        boolean[][] visitedBFS = new boolean[caveSize][caveSize];       // 2D boolean to track where search has been
+
+        int currX = startX;         // position trackers to construct map of path
+        int currY = startY;
+        int prevX = startX;
+        int prevY = startY;
+
+        //while there are nodes we have not checked
+        while (!unvisitedNodes.isEmpty()) {
+            int[] currentposition = unvisitedNodes.poll();          // set current position based on top of queue
+            prevX = currX;
+            prevY = currY;
+            currX = currentposition[0];
+            currY = currentposition[1];
+
+
+        }
+
+        return null;
+    }
+
 
     public void findGold(int x, int y){
         if(cave[x][y].isPit()){
