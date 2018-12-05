@@ -201,9 +201,11 @@ public class Cave {
             for(int x = 0; x < caveSize; x++){
                 if(cave[x][y].isPlayer()) {
                     System.out.print(" Player        |");
-                }else {
-                    System.out.print("               |");
                 }
+                else {
+                }
+                System.out.print("               |");
+
             }
             System.out.println();
 
