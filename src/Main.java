@@ -4,11 +4,11 @@ public class Main {
 
     public static void main(String[] args) {
 
-//        wumpusPrompt();
+        wumpusPrompt();
 
-        Cave fourBfour   = new Cave(4);
-        Player fourBfourPlayer = new Player(4, fourBfour.getNodeCave(), fourBfour);
-        fourBfourPlayer.recursiveSafeSearch(0,0);
+//        Cave fourBfour   = new Cave(4);
+//        Player fourBfourPlayer = new Player(4, fourBfour.getNodeCave(), fourBfour);
+//        fourBfourPlayer.recursiveSafeSearch(0,0);
 
 //        fourBfourPlayer.findGold(0,0);
 //        fourBfourPlayer.printKnowledgeOfBreezes();

@@ -49,6 +49,7 @@ public class Player{
 
         while(!dead ){
 
+            findWumpus();
             recursiveSafeSearch(initialX,initialY);
             if(foundGold){
                 System.out.println("won a thing did a win");
@@ -60,7 +61,7 @@ public class Player{
             }
             findWumpus();
             int[] coord = getShwifty();
-            getFromTo(0,0,coord[0], coord[1]);
+            getFromTo(finalRecurX,finalRecurY,coord[0], coord[1]);
             updateMap.printCave();
             dead = true;
 
@@ -80,7 +81,7 @@ public class Player{
      * Returns true if gold has been found, else returns false if it has not
      */
     public boolean recursiveSafeSearch(int initialX, int initialY) {
-        updateVisitedOnMap();
+        //updateVisitedOnMap();
 
         updateMap.setPlayer(initialX,initialY);
         updateMap.printCave();
@@ -433,7 +434,7 @@ public class Player{
         int [] coord = new int[2];
 
         System.out.println("Gettin shwifty, going to "+ tempX+", "+ tempY);
-        updateVisitedOnMap();
+        //updateVisitedOnMap();
 
         coord[0]= tempX;
         coord[1]= tempY;
