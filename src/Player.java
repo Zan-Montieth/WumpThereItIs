@@ -549,6 +549,24 @@ public class Player{
         }
     }
 
+    private void getFromTo(int startX, int startY, int endX, int endY){
+        updateMap.setPlayer(startX,startY);
+        updateMap.printCave();
+        if(startX == endX && startY == endY){
+            return;
+        }else{
+            if((startX-1) >= 0 && visited[startX-1][startY]){
+                getFromTo(startX - 1,startY,endX,endY);
+            }else if(startY-1 >= 0 && visited[startX][startY-1]){
+                getFromTo(startX,startY - 1,endX,endY);
+            }else if(startY+1 < caveSize && visited[startX][startY+1]){
+                getFromTo(startX,startY+1,endX,endY);
+            }else if(startX+1 < caveSize && visited[startX+1][startY]){
+                getFromTo(startX+1,startY,endX,endY);
+            }
+        }
+    }
+
     private void checkForVisited(int x, int y){
         if((x-1) >= 0 && visited[x-1][y]){
             direction = 3;
